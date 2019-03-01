@@ -32,7 +32,7 @@ def hello_world():
 
 @app.route('/actors', methods=['GET'])
 def actors():
-    actors = Actor.query.order_by(Actor.id).all()
+    actors = Actor.query.order_by().all()
     return jsonify({'actors': [actor.serialize() for actor in actors]})
 
 
