@@ -54,14 +54,14 @@ def get_movies_by_service(service):
     except Exception as e:
         return str(e)
 
-
-@app.route('/movies/genre=<genre>', methods=['GET'])
-def get_movies_by_genre(genre):
-    try:
-        movies = Movie.query.filter_by(genre=genre)
-        return jsonify({'movies': [movie.serialize() for movie in movies]})
-    except Exception as e:
-        return str(e)
+#
+# @app.route('/movies/genre=<genre>', methods=['GET'])
+# def get_movies_by_genre(genre):
+#     try:
+#         movies = Movie.query.filter_by(genre=genre)
+#         return jsonify({'movies': [movie.serialize() for movie in movies]})
+#     except Exception as e:
+#         return str(e)
 
 
 # Routes Regarding TV-Shows
@@ -83,13 +83,13 @@ def get_tv_shows_by_service(service):
         return str(e)
 
 
-@app.route('/tv_shows/genre=<genre>', methods=['GET'])
-def get_tv_shows_by_genre(genre):
-    try:
-        tv_shows = TV_Shows.query.filter_by(genre=genre)
-        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-    except Exception as e:
-        return str(e)
+# @app.route('/tv_shows/genre=<genre>', methods=['GET'])
+# def get_tv_shows_by_genre(genre):
+#     try:
+#         tv_shows = TV_Shows.query.filter_by(genre=genre)
+#         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+#     except Exception as e:
+#         return str(e)
 
 
 if __name__ == '__main__':
