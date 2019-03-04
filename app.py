@@ -73,6 +73,7 @@ def get_movies_by_genre(genre):
 
         # Determine all Movie_ids with that Genre
         movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
+        
         # Get all Movie ids with that Genre
         movie_ids = list()
         for mgr in movie_genre_rel:
