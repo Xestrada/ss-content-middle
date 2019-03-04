@@ -107,3 +107,23 @@ class TVShows(db.Model):
             'tag': self.tag,
             'url': self.url,
         }
+
+
+class TVShowGenre(db.Model):
+    __tablename__ = 'tv_show_genre'
+
+    tv_show_id = db.Column(db.Integer, primary_key=True)
+    genre_id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, tv_show_id, genre_id):
+        self.tv_show_id = tv_show_id
+        self.genre_id = genre_id
+
+    def __repr__(self):
+        return '<tv_show_id {} genre_id {}'.format(self.tv_show_id, self.genre_id)
+
+    def serialize(self):
+        return {
+            'tv_show_id': self.tv_show_id,
+            'genre_id': self.genre_id,
+        }

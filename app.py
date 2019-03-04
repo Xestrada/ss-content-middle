@@ -22,7 +22,7 @@ port = int(os.environ.get('PORT', 33507))
 from models import Actor
 from media_models import Genre
 from media_models import Movie, MovieGenre
-from media_models import TVShows
+from media_models import TVShows, TVShowGenre
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -100,13 +100,28 @@ def get_tv_shows_by_service(service):
         return str(e)
 
 
-# @app.route('/tv_shows/genre=<genre>', methods=['GET'])
-# def get_tv_shows_by_genre(genre):
-#     try:
-#         tv_shows = TV_Shows.query.filter_by(genre=genre)
-#         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-#     except Exception as e:
-#         return str(e)
+@app.route('/tv_shows/genre=<genre>', methods=['GET'])
+def get_tv_shows_by_genre(genre):
+    try:
+        # Determine Singular Genre Object
+        genre = Genre.query.filter_by(genre_type=genre).first()
+
+        # Determine all tvshow_ids with that Genre ID
+        tvshow_genre_rel = TVShowGenre.query.filter_by(genre_id=genre.id)
+
+        # Get all TV_Show ids with that Genre
+        tvshow_ids = list()
+        for tgr in tvshow_genre_rel:
+            tvshow_ids.append(tgr.tv_show_id)
+
+        # Get all TV_Show objects
+        tv_shows = list()
+        for id in tvshow_ids:
+            tv_shows.append(TVShows.query.filter_by(id=id).first())
+
+        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
 
 
 if __name__ == '__main__':
