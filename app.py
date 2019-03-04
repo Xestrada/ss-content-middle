@@ -28,18 +28,21 @@ from media_models import TVShows, TVShowGenre
 pymysql.install_as_MySQLdb()
 
 
+# [url]/
 @app.route('/')
 def hello_world():
     return 'Hello World!'
 
 
+# [url]/actors
 @app.route('/actors', methods=['GET'])
 def actors():
     actors = Actor.query.order_by().all()
     return jsonify({'actors': [actor.serialize() for actor in actors]})
 
 
-# Routes Regarding Movies
+# Query All Movies in Database
+# [url]/movies
 @app.route('/movies', methods=['GET'])
 def get_movies():
     try:
@@ -49,6 +52,8 @@ def get_movies():
         return str(e)
 
 
+# Query Movies by Service Provider
+# [url]/movies/service=[service_provider]
 @app.route('/movies/service=<service>', methods=['GET'])
 def get_movies_by_service(service):
     try:
@@ -58,6 +63,8 @@ def get_movies_by_service(service):
         return str(e)
 
 
+# Query Movies by Genre Type
+# [url]/movies/genre=[genre_type]
 @app.route('/movies/genre=<genre>', methods=['GET'])
 def get_movies_by_genre(genre):
     try:
@@ -81,7 +88,8 @@ def get_movies_by_genre(genre):
         return str(e)
 
 
-# Routes Regarding TV-Shows
+# Query All TV Shows in Database
+# [url]/tv_shows
 @app.route('/tv_shows', methods=['GET'])
 def get_tv_shows():
     try:
@@ -91,6 +99,8 @@ def get_tv_shows():
         return str(e)
 
 
+# Query TV Shows by Service Provider
+# [url]/tv_shows/service=[service_provider]
 @app.route('/tv_shows/service=<service>', methods=['GET'])
 def get_tv_shows_by_service(service):
     try:
@@ -100,6 +110,8 @@ def get_tv_shows_by_service(service):
         return str(e)
 
 
+# Query TV Shows by Genre Type
+# [url]/tv_shows/genre=[genre_type]
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
 def get_tv_shows_by_genre(genre):
     try:
