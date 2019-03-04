@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import pymysql
 import os
+import datetime
 
 # Setup App
 app = Flask(__name__)
@@ -89,6 +90,17 @@ def get_movies_by_genre(genre):
         return str(e)
 
 
+# Query Movies by Year
+# [url]/movies/year=[year]
+@app.route('/movies/year=<year>', methods=['GET'])
+def get_movies_by_year(year):
+    try:
+        movies = Movie.query.filter_by(year=year)
+        return jsonify({'movies': [movie.serialize() for movie in movies]})
+    except Exception as e:
+        return str(e)
+
+
 # Query All TV Shows in Database
 # [url]/tv_shows
 @app.route('/tv_shows', methods=['GET'])
@@ -131,6 +143,52 @@ def get_tv_shows_by_genre(genre):
         tv_shows = list()
         for id in tvshow_ids:
             tv_shows.append(TVShows.query.filter_by(id=id).first())
+
+        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+# Query TV Shows by Year
+# [url]/tv_shows/year=[year]
+@app.route('/tv_shows/year=<year>', methods=['GET'])
+def get_tv_shows_by_year(year):
+    try:
+        queried_year = year
+        tv_shows = list()
+
+        # Get list of all TVShows
+        all_tv_shows = TVShows.query.all()
+
+        for tv_show in all_tv_shows:
+            tv_show_year = tv_show.year
+            years_running = list()
+
+            # Ongoing Show
+            if tv_show_year[-1] == '-':
+                y = int(tv_show_year[:-1])
+                current_year = datetime.datetime.now().year
+                while y <= current_year:
+                    years_running.append(str(y))
+                    y += 1
+
+            # Show Ran for Multiple Years
+            elif tv_show_year[4] == '-':
+                y = int(tv_show_year[:4])
+                end_year = int(tv_show_year[5:])
+                while y <= end_year:
+                    years_running.append(str(y))
+                    y += 1
+
+            # Show Ran for One Year
+            else:
+                years_running.append(tv_show_year)
+
+            # Add TV Show to List if it was running during the queried year
+            for temp in years_running:
+                if temp == queried_year:
+                    tv_shows.append(tv_show)
+                    break
 
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
