@@ -149,7 +149,7 @@ def get_tv_shows_by_genre(genre):
         return str(e)
 
 
-# Query TV Shows by Year
+# Query TV Shows by Years Running
 # [url]/tv_shows/year=[year]
 @app.route('/tv_shows/year=<year>', methods=['GET'])
 def get_tv_shows_by_year(year):
