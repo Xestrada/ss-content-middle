@@ -6,7 +6,7 @@ import os
 
 # Setup App
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS']) #Should change based on is in Development or Production
+app.config.from_object(os.environ['APP_SETTINGS']) # Should change based on is in Development or Production
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Enable CORS
@@ -15,7 +15,7 @@ CORS(app)
 # Start Database
 db = SQLAlchemy(app)
 
-# Enable Variable port for Heroku
+# Enable Variable Port for Heroku
 port = int(os.environ.get('PORT', 33507))
 
 # Import models
@@ -73,13 +73,13 @@ def get_movies_by_genre(genre):
 
         # Determine all Movie_ids with that Genre
         movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
-        
-        # Get all Movie ids with that Genre
+
+        # Create a list of all Movie_ids with that Genre
         movie_ids = list()
         for mgr in movie_genre_rel:
             movie_ids.append(mgr.movie_id)
 
-        # Get all Movie objects
+        # Create a list of all the corresponding Movie objects
         movies = list()
         for id in movie_ids:
             movies.append(Movie.query.filter_by(id=id).first())
@@ -122,12 +122,12 @@ def get_tv_shows_by_genre(genre):
         # Determine all tvshow_ids with that Genre ID
         tvshow_genre_rel = TVShowGenre.query.filter_by(genre_id=genre.id)
 
-        # Get all TV_Show ids with that Genre
+        # Create a list of all TV_Show ids with that Genre
         tvshow_ids = list()
         for tgr in tvshow_genre_rel:
             tvshow_ids.append(tgr.tv_show_id)
 
-        # Get all TV_Show objects
+        # Create a list of all the corresponding TV_Show objects
         tv_shows = list()
         for id in tvshow_ids:
             tv_shows.append(TVShows.query.filter_by(id=id).first())
