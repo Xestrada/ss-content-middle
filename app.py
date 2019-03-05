@@ -37,8 +37,16 @@ def hello_world():
 
 # [url]/actors
 @app.route('/actors', methods=['GET'])
-def actors():
+def get_actors():
     actors = Actor.query.order_by().all()
+    return jsonify({'actors': [actor.serialize() for actor in actors]})
+
+
+# [url]/actors/fn=[first_name]
+@app.route('/actors/fn=<first_name>', methods=['GET'])
+def get_actors_by_first_name(first_name):
+    query_name = "{}%".format(first_name)
+    actors = Actor.query.filter(Actor.first_name.like(query_name)).all()
     return jsonify({'actors': [actor.serialize() for actor in actors]})
 
 
