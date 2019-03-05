@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 port = int(os.environ.get('PORT', 33507))
 
 # Import models
-from models import Actor
+from models import Actor, MovieActor
 from media_models import Genre
 from media_models import Movie, MovieGenre
 from media_models import TVShows, TVShowGenre
@@ -76,6 +76,19 @@ def get_movies():
     except Exception as e:
         return str(e)
 
+
+# [url]/movies/actor=<actor_full_name>
+@app.route('/movies/actor=<actor_name>')
+def get_movies_by_actor(actor_name):
+    actor_name = Actor.query.filter_by(full_name=actor_name).first()
+    movie_actor_rel = MovieActor.query.filter_by(actor_id=actor_name.id)
+    movie_id = list()
+    for mar in movie_actor_rel:
+        movie_id.append(mar.movie_id)
+    movies = list()
+    for id in movie_id:
+        movies.append(Movie.query.filter_by(id=id).first())
+    return jsonify({'movies': [movie.serialize() for movie in movies]})
 
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
