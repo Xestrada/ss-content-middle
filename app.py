@@ -182,7 +182,8 @@ def get_tv_shows_by_year(year):
 
             # Show Ran for One Year
             else:
-                years_running.append(tv_show_year)
+                if int(tv_show_year) == queried_year:
+                    years_running.append(tv_show_year)
 
             # Add TV Show to List if it was running during the queried year
             for temp in years_running:
