@@ -58,6 +58,14 @@ def get_actors_by_last_name(last_name):
     return jsonify({'actors': [actor.serialize() for actor in actors]})
 
 
+# [url]/actors/full=[full_name]
+@app.route('/actors/full=<full_name>', methods = ['GET'])
+def get_actors_by_full_name(full_name):
+    query_name = "%{}%".format(full_name)
+    actors = Actor.query.filter(Actor.full_name.like(query_name)).all()
+    return jsonify({'actors': [actor.serialize() for actor in actors]})
+
+
 # Query All Movies in Database
 # [url]/movies
 @app.route('/movies', methods=['GET'])
