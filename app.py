@@ -69,21 +69,23 @@ def get_movies_by_service(service):
 @app.route('/movies/genre=<genre>', methods=['GET'])
 def get_movies_by_genre(genre):
     try:
+        movies = list()
+
         # Determine Singular Genre Object
         genre = Genre.query.filter_by(genre_type=genre).first()
 
-        # Determine all Movie_ids with that Genre
-        movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
+        if genre is not None:
+            # Determine all Movie_ids with that Genre
+            movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
 
-        # Create a list of all Movie_ids with that Genre
-        movie_ids = list()
-        for mgr in movie_genre_rel:
-            movie_ids.append(mgr.movie_id)
+            # Create a list of all Movie_ids with that Genre
+            movie_ids = list()
+            for mgr in movie_genre_rel:
+                movie_ids.append(mgr.movie_id)
 
-        # Create a list of all the corresponding Movie objects
-        movies = list()
-        for id in movie_ids:
-            movies.append(Movie.query.filter_by(id=id).first())
+            # Create a list of all the corresponding Movie objects
+            for id in movie_ids:
+                movies.append(Movie.query.filter_by(id=id).first())
 
         return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
@@ -128,21 +130,23 @@ def get_tv_shows_by_service(service):
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
 def get_tv_shows_by_genre(genre):
     try:
+        tv_shows = list()
+
         # Determine Singular Genre Object
         genre = Genre.query.filter_by(genre_type=genre).first()
 
-        # Determine all tvshow_ids with that Genre ID
-        tvshow_genre_rel = TVShowGenre.query.filter_by(genre_id=genre.id)
+        if genre is not None:
+            # Determine all tvshow_ids with that Genre ID
+            tvshow_genre_rel = TVShowGenre.query.filter_by(genre_id=genre.id)
 
-        # Create a list of all TV_Show ids with that Genre
-        tvshow_ids = list()
-        for tgr in tvshow_genre_rel:
-            tvshow_ids.append(tgr.tv_show_id)
+            # Create a list of all TV_Show ids with that Genre
+            tvshow_ids = list()
+            for tgr in tvshow_genre_rel:
+                tvshow_ids.append(tgr.tv_show_id)
 
-        # Create a list of all the corresponding TV_Show objects
-        tv_shows = list()
-        for id in tvshow_ids:
-            tv_shows.append(TVShows.query.filter_by(id=id).first())
+            # Create a list of all the corresponding TV_Show objects
+            for id in tvshow_ids:
+                tv_shows.append(TVShows.query.filter_by(id=id).first())
 
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
