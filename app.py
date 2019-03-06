@@ -35,6 +35,88 @@ def hello_world():
     return 'Hello World!'
 
 
+# [url]/search=[query]
+@app.route('/search=<query>')
+def get_all_results(query=None):
+    try:
+        results = list()
+
+        # movie_title = query
+        movies = get_movies_by_title(query, True)
+        print(len(movies))
+        if len(movies) != 0:
+            for movie in movies:
+                results.append(movie)
+
+        # movie_service = query
+        movies = get_movies_by_service(query, True)
+        print (len(movies))
+
+        if len(movies) != 0:
+            for movie in movies:
+                results.append(movie)
+
+        # movie_genre = query
+        movies = get_movies_by_genre(query, True)
+        print (len(movies))
+
+        if len(movies) != 0:
+            for movie in movies:
+                results.append(movie)
+
+        # movie_year = query
+        movies = get_movies_by_year(query, True)
+        print (len(movies))
+
+        if len(movies) != 0:
+            for movie in movies:
+                results.append(movie)
+
+        # tv-show_title = query
+        tv_shows = get_tv_shows_by_title(query, True)
+        print (len(tv_shows))
+
+        if len(tv_shows) != 0:
+            for tv_show in tv_shows:
+                results.append(tv_show)
+
+        # tv-show_service = query
+        tv_shows = get_tv_shows_by_service(query, True)
+        print (len(tv_shows))
+
+        if len(tv_shows) != 0:
+            for tv_show in tv_shows:
+                results.append(tv_show)
+
+        # tv-show genre = query
+        tv_shows = get_tv_shows_by_genre(query, True)
+        print (len(tv_shows))
+
+        if len(tv_shows) != 0:
+            for tv_show in tv_shows:
+                results.append(tv_show)
+
+        # tv-show year = query
+        tv_shows = get_tv_shows_by_year(query, True)
+        print (len(tv_shows))
+
+        if len(tv_shows) != 0:
+            for tv_show in tv_shows:
+                results.append(tv_show)
+
+        # remove any element in results is not a model
+        i = 0
+        while i < len(results):
+            if isinstance(results[i], str):
+                results.remove(results[i])
+                i -= 1
+            i += 1
+
+        return jsonify({'all': [result.serialize() for result in results]})
+
+    except Exception as e:
+        return str(e)
+
 # [url]/actors
 @app.route('/actors', methods=['GET'])
 def get_actors():
