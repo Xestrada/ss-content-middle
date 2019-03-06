@@ -75,6 +75,18 @@ def get_movies():
         return str(e)
 
 
+# [url]/movies/title=[title]
+@app.route('/movies/title=<title>', methods=['GET'])
+@app.route('/movies/title=', methods=['GET'])
+def get_movies_by_title(title=None):
+    try:
+        query_title = "{}%".format(title)
+        movies = Movie.query.filter(Movie.title.like(query_title)).all()
+        return jsonify({'movies': [movie.serialize() for movie in movies]})
+    except Exception as e:
+        return str(e)
+
+
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
 @app.route('/movies/service=<service>', methods=['GET'])
@@ -137,6 +149,18 @@ def get_movies_by_year(year=None):
 def get_tv_shows():
     try:
         tv_shows = TVShows.query.all()
+        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+# [url]/tv_shows/title=[title]
+@app.route('/tv_shows/title=<title>', methods=['GET'])
+@app.route('/tv_shows/title=', methods=['GET'])
+def get_tv_shows_by_title(title=None):
+    try:
+        query_title = "{}%".format(title)
+        tv_shows = TVShows.query.filter(TVShows.title.like(query_title)).all()
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
         return str(e)
