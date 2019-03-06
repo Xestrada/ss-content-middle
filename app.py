@@ -36,8 +36,9 @@ def hello_world():
 
 
 # [url]/search=[query]
+@app.route('/search=<query>/page=<int:page>')
 @app.route('/search=<query>')
-def get_all_results(query=None):
+def get_all_results(query=None, page=1):
     try:
         results = list()
 
@@ -112,10 +113,19 @@ def get_all_results(query=None):
                 i -= 1
             i += 1
 
+        # Pseudo Pagination
+        start_page = page - 1
+        end_page = start_page + app.config['POSTS_PER_PAGE']
+        if end_page > len(results):
+            end_page = len(results)
+
+        results = results[start_page:end_page]
+
         return jsonify({'all': [result.serialize() for result in results]})
 
     except Exception as e:
         return str(e)
+
 
 # [url]/actors
 @app.route('/actors', methods=['GET'])
