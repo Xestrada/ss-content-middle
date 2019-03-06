@@ -7,7 +7,7 @@ import datetime
 
 # Setup App
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS']) # Should change based on is in Development or Production
+app.config.from_object(os.environ['APP_SETTINGS'])  # Should change based on is in Development or Production
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Enable CORS
@@ -51,7 +51,7 @@ def get_all_results(query=None, page=1):
 
         # movie_service = query
         movies = get_movies_by_service(query, True)
-        print (len(movies))
+        print(len(movies))
 
         if len(movies) != 0:
             for movie in movies:
@@ -59,7 +59,7 @@ def get_all_results(query=None, page=1):
 
         # movie_genre = query
         movies = get_movies_by_genre(query, True)
-        print (len(movies))
+        print(len(movies))
 
         if len(movies) != 0:
             for movie in movies:
@@ -67,7 +67,7 @@ def get_all_results(query=None, page=1):
 
         # movie_year = query
         movies = get_movies_by_year(query, True)
-        print (len(movies))
+        print(len(movies))
 
         if len(movies) != 0:
             for movie in movies:
@@ -75,7 +75,7 @@ def get_all_results(query=None, page=1):
 
         # tv-show_title = query
         tv_shows = get_tv_shows_by_title(query, True)
-        print (len(tv_shows))
+        print(len(tv_shows))
 
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
@@ -83,7 +83,7 @@ def get_all_results(query=None, page=1):
 
         # tv-show_service = query
         tv_shows = get_tv_shows_by_service(query, True)
-        print (len(tv_shows))
+        print(len(tv_shows))
 
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
@@ -91,7 +91,7 @@ def get_all_results(query=None, page=1):
 
         # tv-show genre = query
         tv_shows = get_tv_shows_by_genre(query, True)
-        print (len(tv_shows))
+        print(len(tv_shows))
 
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
@@ -99,7 +99,7 @@ def get_all_results(query=None, page=1):
 
         # tv-show year = query
         tv_shows = get_tv_shows_by_year(query, True)
-        print (len(tv_shows))
+        print(len(tv_shows))
 
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
@@ -175,11 +175,14 @@ def get_movies_by_title(title=None, search_all=False):
         query_title = "%{}%".format(title)
         movies = Movie.query.filter(Movie.title.like(query_title)).all()
 
+        # return list for search all route
         if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
             return movie_list
+
+        # return json of queried movies
         else:
             return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
@@ -194,11 +197,14 @@ def get_movies_by_service(service=None, search_all=False):
     try:
         movies = Movie.query.filter_by(service=service)
 
+        # return list for search all route
         if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
             return movie_list
+
+        # return json of queried movies
         else:
             return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
@@ -230,11 +236,14 @@ def get_movies_by_genre(genre=None, search_all=False):
             for id in movie_ids:
                 movies.append(Movie.query.filter_by(id=id).first())
 
+        # return list for search all route
         if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
             return movie_list
+
+        # return json of queried movies
         else:
             return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
@@ -251,11 +260,14 @@ def get_movies_by_year(year=None, search_all=False):
         if year is not None and int(year) > 0:
             movies = Movie.query.filter_by(year=year)
 
+        # return list for search all route
         if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
             return movie_list
+
+        # return json of queried movies
         else:
             return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
@@ -281,13 +293,14 @@ def get_tv_shows_by_title(title=None, search_all=False):
         query_title = "%{}%".format(title)
         tv_shows = TVShows.query.filter(TVShows.title.like(query_title)).all()
 
+        # return list for search all route
         if search_all:
             tv_list = list()
-
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
-
             return tv_list
+
+        # return json of queried tv_shows
         else:
             return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
@@ -302,13 +315,14 @@ def get_tv_shows_by_service(service=None, search_all=False):
     try:
         tv_shows = TVShows.query.filter_by(service=service)
 
+        # return list for search all route
         if search_all:
             tv_list = list()
-
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
-
             return tv_list
+
+        # return json of queried tv_shows
         else:
             return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
@@ -340,13 +354,14 @@ def get_tv_shows_by_genre(genre=None, search_all=False):
             for id in tvshow_ids:
                 tv_shows.append(TVShows.query.filter_by(id=id).first())
 
+        # return list for search all route
         if search_all:
             tv_list = list()
-
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
-
             return tv_list
+
+        # return json of queried tv_shows
         else:
             return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
 
@@ -399,13 +414,14 @@ def get_tv_shows_by_year(year=None, search_all=False):
                         tv_shows.append(tv_show)
                         break
 
+        # return list for search all route
         if search_all:
             tv_list = list()
-
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
-
             return tv_list
+
+        # return json of queried tv_shows
         else:
             return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
