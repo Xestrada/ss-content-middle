@@ -74,6 +74,7 @@ def get_movies_by_genre(genre):
         # Determine Singular Genre Object
         genre = Genre.query.filter_by(genre_type=genre).first()
 
+        # if Genre exists, query Movies
         if genre is not None:
             # Determine all Movie_ids with that Genre
             movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
@@ -135,6 +136,7 @@ def get_tv_shows_by_genre(genre):
         # Determine Singular Genre Object
         genre = Genre.query.filter_by(genre_type=genre).first()
 
+        # If Genre exists, query TV_Shows
         if genre is not None:
             # Determine all tvshow_ids with that Genre ID
             tvshow_genre_rel = TVShowGenre.query.filter_by(genre_id=genre.id)
