@@ -26,7 +26,7 @@ class Actor(db.Model):
         }
 
 
-class MovieActor(db.Model):
+class ActorMovie(db.Model):
     __tablename__='movie_actors'
 
     movie_id = db.Column(db.Integer, primary_key=True)
@@ -46,7 +46,7 @@ class MovieActor(db.Model):
         }
 
 
-class TVShowActors(db.Model):
+class ActorsTVShow(db.Model):
     __tablename__='tv_show_actors'
 
     tv_show_id = db.Column(db.Integer, primary_key=True)
