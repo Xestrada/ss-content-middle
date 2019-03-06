@@ -38,8 +38,11 @@ def hello_world():
 # [url]/actors
 @app.route('/actors', methods=['GET'])
 def actors():
-    actors = Actor.query.order_by().all()
-    return jsonify({'actors': [actor.serialize() for actor in actors]})
+    try:
+        actors = Actor.query.order_by().all()
+        return jsonify({'actors': [actor.serialize() for actor in actors]})
+    except Exception as e:
+        return str(e)
 
 
 # Query All Movies in Database
@@ -56,7 +59,8 @@ def get_movies():
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
 @app.route('/movies/service=<service>', methods=['GET'])
-def get_movies_by_service(service):
+@app.route('/movies/service=', methods=['GET'])
+def get_movies_by_service(service=None):
     try:
         movies = Movie.query.filter_by(service=service)
         return jsonify({'movies': [movie.serialize() for movie in movies]})
@@ -67,7 +71,8 @@ def get_movies_by_service(service):
 # Query Movies by Genre Type
 # [url]/movies/genre=[genre_type]
 @app.route('/movies/genre=<genre>', methods=['GET'])
-def get_movies_by_genre(genre):
+@app.route('/movies/genre=', methods=['GET'])
+def get_movies_by_genre(genre=None):
     try:
         movies = list()
 
@@ -96,9 +101,12 @@ def get_movies_by_genre(genre):
 # Query Movies by Year
 # [url]/movies/year=[year]
 @app.route('/movies/year=<year>', methods=['GET'])
-def get_movies_by_year(year):
+@app.route('/movies/year=', methods=['GET'])
+def get_movies_by_year(year=None):
     try:
-        movies = Movie.query.filter_by(year=year)
+        movies = list()
+        if year is not None and int(year) > 0:
+            movies = Movie.query.filter_by(year=year)
         return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
         return str(e)
@@ -118,7 +126,8 @@ def get_tv_shows():
 # Query TV Shows by Service Provider
 # [url]/tv_shows/service=[service_provider]
 @app.route('/tv_shows/service=<service>', methods=['GET'])
-def get_tv_shows_by_service(service):
+@app.route('/tv_shows/service=', methods=['GET'])
+def get_tv_shows_by_service(service=None):
     try:
         tv_shows = TVShows.query.filter_by(service=service)
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
@@ -129,7 +138,8 @@ def get_tv_shows_by_service(service):
 # Query TV Shows by Genre Type
 # [url]/tv_shows/genre=[genre_type]
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
-def get_tv_shows_by_genre(genre):
+@app.route('/tv_shows/genre=', methods=['GET'])
+def get_tv_shows_by_genre(genre=None):
     try:
         tv_shows = list()
 
@@ -158,44 +168,47 @@ def get_tv_shows_by_genre(genre):
 # Query TV Shows by Years Running
 # [url]/tv_shows/year=[year]
 @app.route('/tv_shows/year=<year>', methods=['GET'])
-def get_tv_shows_by_year(year):
+@app.route('/tv_shows/year=', methods=['GET'])
+def get_tv_shows_by_year(year=None):
     try:
-        queried_year = year
         tv_shows = list()
 
-        # Get list of all TVShows
-        all_tv_shows = TVShows.query.all()
+        if year is not None and int(year) > 0:
+            queried_year = year
 
-        for tv_show in all_tv_shows:
-            tv_show_year = tv_show.year
-            years_running = list()
+            # Get list of all TVShows
+            all_tv_shows = TVShows.query.all()
 
-            # Ongoing Show
-            if tv_show_year[-1] == '-':
-                y = int(tv_show_year[:-1])
-                current_year = datetime.datetime.now().year
-                while y <= current_year:
-                    years_running.append(str(y))
-                    y += 1
+            for tv_show in all_tv_shows:
+                tv_show_year = tv_show.year
+                years_running = list()
 
-            # Show Ran for Multiple Years
-            elif tv_show_year[4] == '-':
-                y = int(tv_show_year[:4])
-                end_year = int(tv_show_year[5:])
-                while y <= end_year:
-                    years_running.append(str(y))
-                    y += 1
+                # Ongoing Show
+                if tv_show_year[-1] == '-':
+                    y = int(tv_show_year[:-1])
+                    current_year = datetime.datetime.now().year
+                    while y <= current_year:
+                        years_running.append(str(y))
+                        y += 1
 
-            # Show Ran for One Year
-            else:
-                if int(tv_show_year) == queried_year:
-                    years_running.append(tv_show_year)
+                # Show Ran for Multiple Years
+                elif tv_show_year[4] == '-':
+                    y = int(tv_show_year[:4])
+                    end_year = int(tv_show_year[5:])
+                    while y <= end_year:
+                        years_running.append(str(y))
+                        y += 1
 
-            # Add TV Show to List if it was running during the queried year
-            for temp in years_running:
-                if temp == queried_year:
-                    tv_shows.append(tv_show)
-                    break
+                # Show Ran for One Year
+                else:
+                    if int(tv_show_year) == queried_year:
+                        years_running.append(tv_show_year)
+
+                # Add TV Show to List if it was running during the queried year
+                for temp in years_running:
+                    if temp == queried_year:
+                        tv_shows.append(tv_show)
+                        break
 
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
