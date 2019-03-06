@@ -37,9 +37,28 @@ def hello_world():
 
 # [url]/actors
 @app.route('/actors', methods=['GET'])
-def actors():
+def get_actors():
     try:
         actors = Actor.query.order_by().all()
+        return jsonify({'actors': [actor.serialize() for actor in actors]})
+    except Exception as e:
+        return str(e)
+
+
+# [url]/actors/page=[page_number]
+@app.route('/actors/page=<int:page>', methods=['GET'])
+@app.route('/actors/page=', methods=['GET'])
+def get_actors_by_page(page=1):
+    try:
+        actors = list()
+
+        # Create a tuple of actors in alphabetical order
+        pagination = Actor.query.order_by(Actor.full_name).paginate(page, app.config['POSTS_PER_PAGE'], error_out=False)
+
+        # Create a list of Actor objects of size app.config['POST_PER_PAGE']
+        for item in pagination.items:
+            actors.append(Actor.query.filter_by(id=item.id).first())
+
         return jsonify({'actors': [actor.serialize() for actor in actors]})
     except Exception as e:
         return str(e)
