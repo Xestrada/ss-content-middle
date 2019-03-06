@@ -99,6 +99,13 @@ def get_movies():
         return str(e)
 
 
+# [url]/movies/actor=
+@app.route('/movies/actor=')
+def get_no_movies():
+    movies = list()
+    return jsonify({'movies': [movie.serialize() for movie in movies]})
+
+
 # [url]/movies/actor=<actor_full_name>
 @app.route('/movies/actor=<actor_name>')
 def get_movies_by_actor(actor_name):
