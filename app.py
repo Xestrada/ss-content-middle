@@ -34,6 +34,16 @@ pymysql.install_as_MySQLdb()
 def hello_world():
     return 'Hello World!'
 
+# [url]/actors/fn=
+# [url]/actors/ln=
+# [url]/actors/last=
+@app.route('/actors/fn=', methods=['GET'])
+@app.route('/actors/ln=', methods = ['GET'])
+@app.route('/actors/full=', methods = ['GET'])
+def get_nothing():
+    actors = list()
+    return jsonify({'actors': [actor.serialize() for actor in actors]})
+
 
 # [url]/actors
 @app.route('/actors', methods=['GET'])
@@ -104,7 +114,6 @@ def get_movies_by_actor(actor_name):
         return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
         return str(e)
-
 
 
 # [url]/tv_shows/actor=<actor_full_name>
