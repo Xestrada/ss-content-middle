@@ -40,7 +40,7 @@ def hello_world():
 @app.route('/actors/fn=', methods=['GET'])
 @app.route('/actors/ln=', methods = ['GET'])
 @app.route('/actors/full=', methods = ['GET'])
-def get_nothing():
+def get_no_actors():
     actors = list()
     return jsonify({'actors': [actor.serialize() for actor in actors]})
 
@@ -100,14 +100,14 @@ def get_movies():
 
 
 # [url]/movies/actor=
-@app.route('/movies/actor=')
+@app.route('/movies/actor=', methods=['GET'])
 def get_no_movies():
     movies = list()
     return jsonify({'movies': [movie.serialize() for movie in movies]})
 
 
 # [url]/movies/actor=<actor_full_name>
-@app.route('/movies/actor=<actor_name>')
+@app.route('/movies/actor=<actor_name>', methods=['GET'])
 def get_movies_by_actor(actor_name):
     try:
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
@@ -124,7 +124,14 @@ def get_movies_by_actor(actor_name):
 
 
 # [url]/tv_shows/actor=<actor_full_name>
-@app.route('/tv_shows/actor=<actor_name>')
+@app.route('/tv_shows/actor=', methods=['GET'])
+def get_no_tv_shows():
+        tv_shows = list()
+        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+
+
+# [url]/tv_shows/actor=<actor_full_name>
+@app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
 def get_tv_shows_by_actor(actor_name):
     try:
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
