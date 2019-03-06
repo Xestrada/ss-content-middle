@@ -37,10 +37,30 @@ class MovieActor(db.Model):
         self.actor_id = actor_id
 
     def _repr__(self):
-        return '<movie_id {} genre_id {}>'.format(self.movie_id, self.genre_id)
+        return '<movie_id {} actor_id {}>'.format(self.movie_id, self.actor_id)
 
     def serialize(self):
         return {
             'movie_id': self.movie_id,
             'actor_id': self.actor_id,
+        }
+
+
+class TVShowActors(db.Model):
+    __tablename__='tv_show_actors'
+
+    tv_show_id = db.Column(db.Integer, primary_key=True)
+    actors_id = db.Column(db.Integer, primary_key=True)
+
+    def __init__(self, tv_show_id, actors_id):
+        self.tv_show_id = tv_show_id
+        self.actors_id = actors_id
+
+    def _repr__(self):
+        return '<tv_show_id {} actors_id {}>'.format(self.tv_show_id, self.actors_id)
+
+    def serialize(self):
+        return {
+            'tv_show_id': self.tv_show_id,
+            'actors_id': self.actors_id,
         }

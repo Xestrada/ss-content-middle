@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 port = int(os.environ.get('PORT', 33507))
 
 # Import models
-from models import Actor, MovieActor
+from models import Actor, MovieActor, TVShowActors
 from media_models import Genre
 from media_models import Movie, MovieGenre
 from media_models import TVShows, TVShowGenre
@@ -89,6 +89,22 @@ def get_movies_by_actor(actor_name):
     for id in movie_id:
         movies.append(Movie.query.filter_by(id=id).first())
     return jsonify({'movies': [movie.serialize() for movie in movies]})
+
+
+
+# [url]/tv_shows/actor=<actor_full_name>
+@app.route('/tv_shows/actor=<actor_name>')
+def get_tv_shows_by_actor(actor_name):
+    actor_name = Actor.query.filter_by(full_name=actor_name).first()
+    tv_shows_actor_rel = TVShowActors.query.filter_by(actors_id=actor_name.id)
+    tv_shows_id = list()
+    for tar in tv_shows_actor_rel:
+        tv_shows_id.append(tar.tv_show_id)
+    tv_shows = list()
+    for id in tv_shows_id:
+        tv_shows.append(TVShows.query.filter_by(id=id).first())
+    return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+
 
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
