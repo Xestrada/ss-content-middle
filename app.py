@@ -20,7 +20,7 @@ db = SQLAlchemy(app)
 port = int(os.environ.get('PORT', 33507))
 
 # Import models
-from models import Actor
+from models import Actor, MovieActor
 from media_models import Genre
 from media_models import Movie, MovieGenre
 from media_models import TVShows, TVShowGenre
@@ -130,6 +130,7 @@ def get_all_results(query=None, page=1):
 # [url]/actors
 @app.route('/actors', methods=['GET'])
 def get_actors():
+
     try:
         actors = Actor.query.order_by().all()
         return jsonify({'actors': [actor.serialize() for actor in actors]})
@@ -154,6 +155,30 @@ def get_actors_by_page(page=1):
         return jsonify({'actors': [actor.serialize() for actor in actors]})
     except Exception as e:
         return str(e)
+
+
+# [url]/actors/fn=[first_name]
+@app.route('/actors/fn=<first_name>', methods=['GET'])
+def get_actors_by_first_name(first_name):
+    query_name = "{}%".format(first_name)
+    actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
+    return jsonify({'actors': [actor.serialize() for actor in actors_first_name]})
+
+
+# [url]/actors/ln=[last_name]
+@app.route('/actors/ln=<last_name>', methods = ['GET'])
+def get_actors_by_last_name(last_name):
+    query_name = "{}%".format(last_name)
+    actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
+    return jsonify({'actors': [actor.serialize() for actor in actors_last_name]})
+
+
+# [url]/actors/full=[full_name]
+@app.route('/actors/full=<full_name>', methods = ['GET'])
+def get_actors_by_full_name(full_name):
+    query_name = "%{}%".format(full_name)
+    actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
+    return jsonify({'actors': [actor.serialize() for actor in actors_full_name]})
 
 
 # Query All Movies in Database
@@ -187,6 +212,20 @@ def get_movies_by_title(title=None, search_all=False):
             return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
         return str(e)
+
+      
+# [url]/movies/actor=<actor_full_name>
+@app.route('/movies/actor=<actor_name>')
+def get_movies_by_actor(actor_name):
+    actor_name = Actor.query.filter_by(full_name=actor_name).first()
+    movie_actor_rel = MovieActor.query.filter_by(actor_id=actor_name.id)
+    movie_id = list()
+    for mar in movie_actor_rel:
+        movie_id.append(mar.movie_id)
+    movies = list()
+    for id in movie_id:
+        movies.append(Movie.query.filter_by(id=id).first())
+    return jsonify({'movies': [movie.serialize() for movie in movies]})
 
 
 # Query Movies by Service Provider
