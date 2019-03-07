@@ -113,6 +113,9 @@ def get_all_results(query=None, page=1):
                 i -= 1
             i += 1
 
+        # Ensure no duplicates
+        results = list(set(results))
+
         # Pseudo Pagination
         start_page = page - 1
         end_page = start_page + app.config['POSTS_PER_PAGE']
@@ -130,7 +133,6 @@ def get_all_results(query=None, page=1):
 # [url]/actors
 @app.route('/actors', methods=['GET'])
 def get_actors():
-
     try:
         actors = Actor.query.order_by().all()
         return jsonify({'actors': [actor.serialize() for actor in actors]})
@@ -166,7 +168,7 @@ def get_actors_by_first_name(first_name):
 
 
 # [url]/actors/ln=[last_name]
-@app.route('/actors/ln=<last_name>', methods = ['GET'])
+@app.route('/actors/ln=<last_name>', methods=['GET'])
 def get_actors_by_last_name(last_name):
     query_name = "{}%".format(last_name)
     actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
@@ -174,7 +176,7 @@ def get_actors_by_last_name(last_name):
 
 
 # [url]/actors/full=[full_name]
-@app.route('/actors/full=<full_name>', methods = ['GET'])
+@app.route('/actors/full=<full_name>', methods=['GET'])
 def get_actors_by_full_name(full_name):
     query_name = "%{}%".format(full_name)
     actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
@@ -213,7 +215,7 @@ def get_movies_by_title(title=None, search_all=False):
     except Exception as e:
         return str(e)
 
-      
+
 # [url]/movies/actor=<actor_full_name>
 @app.route('/movies/actor=<actor_name>')
 def get_movies_by_actor(actor_name):
@@ -469,3 +471,4 @@ def get_tv_shows_by_year(year=None, search_all=False):
 
 if __name__ == '__main__':
     app.run(port=port)
+
