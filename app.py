@@ -207,6 +207,25 @@ def get_movies():
         return str(e)
 
 
+# [url/movies/recently_added
+@app.route('/movies/recently_added')
+def get_movies_recent():
+    try:
+        results = list()
+        today = date.today()
+
+        # Append all movies in database within 'RECENT_TIME' days
+        movies = Movie.query.order_by().all()
+        for movie in movies:
+            date_movie_added = movie.date_added
+
+            if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
+                results.append(movie)
+        return jsonify({'recently added': [result.serialize() for result in results]})
+    except Exception as e:
+        return str(e)
+
+
 # [url]/movies/title=[title]
 @app.route('/movies/title=<title>', methods=['GET'])
 @app.route('/movies/title=', methods=['GET'])
@@ -335,6 +354,25 @@ def get_tv_shows():
     try:
         tv_shows = TVShows.query.all()
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+# [url/tv_shows/recently_added
+@app.route('/tv_shows/recently_added')
+def get_tv_shows_recent():
+    try:
+        results = list()
+        today = date.today()
+
+        # Append all movies in database within 'RECENT_TIME' days
+        tv_shows = TVShows.query.order_by().all()
+        for tv_show in tv_shows:
+            date_tv_show_added = tv_show.date_added
+
+            if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
+                results.append(tv_show)
+        return jsonify({'recently added': [result.serialize() for result in results]})
     except Exception as e:
         return str(e)
 
