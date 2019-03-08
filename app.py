@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from datetime import date, timedelta
 import pymysql
 import os
-import datetime
 
 # Setup App
 app = Flask(__name__)
@@ -35,6 +35,32 @@ def hello_world():
     return 'Hello World!'
 
 
+# [url]/recently_added
+@app.route('/recently_added')
+def recently_added():
+    try:
+        results = list()
+        today = date.today()
+
+        movies = Movie.query.order_by().all()
+        for movie in movies:
+            date_movie_added = movie.date_added
+
+            if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
+                results.append(movie)
+
+        tv_shows = TVShows.query.order_by().all()
+        for tv_show in tv_shows:
+            date_tv_show_added = tv_show.date_added
+
+            if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
+                results.append(tv_show)
+
+        return jsonify({'recently added': [result.serialize() for result in results]})
+    except Exception as e:
+        return str(e)
+
+
 # [url]/search=[query]
 @app.route('/search=<query>/page=<int:page>')
 @app.route('/search=<query>')
@@ -44,63 +70,48 @@ def get_all_results(query=None, page=1):
 
         # movie_title = query
         movies = get_movies_by_title(query, True)
-        print(len(movies))
         if len(movies) != 0:
             for movie in movies:
                 results.append(movie)
 
         # movie_service = query
         movies = get_movies_by_service(query, True)
-        print(len(movies))
-
         if len(movies) != 0:
             for movie in movies:
                 results.append(movie)
 
         # movie_genre = query
         movies = get_movies_by_genre(query, True)
-        print(len(movies))
-
         if len(movies) != 0:
             for movie in movies:
                 results.append(movie)
 
         # movie_year = query
         movies = get_movies_by_year(query, True)
-        print(len(movies))
-
         if len(movies) != 0:
             for movie in movies:
                 results.append(movie)
 
         # tv-show_title = query
         tv_shows = get_tv_shows_by_title(query, True)
-        print(len(tv_shows))
-
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
                 results.append(tv_show)
 
         # tv-show_service = query
         tv_shows = get_tv_shows_by_service(query, True)
-        print(len(tv_shows))
-
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
                 results.append(tv_show)
 
         # tv-show genre = query
         tv_shows = get_tv_shows_by_genre(query, True)
-        print(len(tv_shows))
-
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
                 results.append(tv_show)
 
         # tv-show year = query
         tv_shows = get_tv_shows_by_year(query, True)
-        print(len(tv_shows))
-
         if len(tv_shows) != 0:
             for tv_show in tv_shows:
                 results.append(tv_show)
@@ -431,7 +442,7 @@ def get_tv_shows_by_year(year=None, search_all=False):
                 # Ongoing Show
                 if tv_show_year[-1] == '-':
                     y = int(tv_show_year[:-1])
-                    current_year = datetime.datetime.now().year
+                    current_year = date.today().year
                     while y <= current_year:
                         years_running.append(str(y))
                         y += 1

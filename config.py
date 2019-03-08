@@ -10,6 +10,7 @@ class Config(object):
     SECRET_KEY = 'key'
     SQLALCHEMY_DATABASE_URI = os.environ['AWS_RDS_URL']
     POSTS_PER_PAGE = 20  # How many items to display per page (for pagination)
+    RECENT_TIME = 30  # How many days to consider recently added
 
 
 class ProductionConfig(Config):
