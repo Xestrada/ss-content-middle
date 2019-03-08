@@ -78,24 +78,10 @@ def get_all_results(query=None, page=1):
         for tv_show in tv_shows:
             results.append(tv_show)
 
-        # remove any element in results is not a model
-        i = 0
-        while i < len(results):
-            if isinstance(results[i], str):
-                results.remove(results[i])
-                i -= 1
-            i += 1
-
-        # Ensure no duplicates
-        results = list(set(results))
+        print(results)
 
         # Pseudo Pagination
-        start_page = page - 1
-        end_page = start_page + app.config['POSTS_PER_PAGE']
-        if end_page > len(results):
-            end_page = len(results)
-
-        results = results[start_page:end_page]
+        results = pseudo_paginate(page, results)
 
         return jsonify({'all': [result.serialize() for result in results]})
 
@@ -544,10 +530,17 @@ def get_movies_search_all(query):
         for movie in movies_year:
             movies.append(movie)
 
-    # Ensure no duplicates
+    i = 0
+    while i < len(movies):
+        if isinstance(movies[i], str):
+            movies.remove(movies[i])
+            i -= 1
+        i += 1
+
+    # Ensure no duplicates and sorted
     movies = list(set(movies))
 
-    return movies
+    return sorted(movies, key=lambda movie: movie.id)
 
 
 # Return a list of tv_shows that match query in any column
@@ -578,10 +571,27 @@ def get_tv_shows_search_all(query):
         for tv_show in tv_shows_year:
             tv_shows.append(tv_show)
 
-    # Ensure no duplicates
+    i = 0
+    while i < len(tv_shows):
+        if isinstance(tv_shows[i], str):
+            tv_shows.remove(tv_shows[i])
+            i -= 1
+        i += 1
+
+    # Ensure no duplicates and sorted
     tv_shows = list(set(tv_shows))
 
-    return tv_shows
+    return sorted(tv_shows, key=lambda tv_show: tv_show.id)
+
+
+# Pseudo Pagination
+def pseudo_paginate(page: int, list_to_paginate: []):
+    start_page = (page - 1) * app.config['POSTS_PER_PAGE']
+    end_page = start_page + app.config['POSTS_PER_PAGE']
+    if end_page > len(list_to_paginate):
+        end_page = len(list_to_paginate)
+
+    return list_to_paginate[start_page:end_page]
 
 
 if __name__ == '__main__':
