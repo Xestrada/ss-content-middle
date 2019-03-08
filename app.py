@@ -221,7 +221,7 @@ def get_movies_recent():
 
             if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(movie)
-        return jsonify({'recently added': [result.serialize() for result in results]})
+        return jsonify({'movies': [result.serialize() for result in results]})
     except Exception as e:
         return str(e)
 
@@ -372,7 +372,7 @@ def get_tv_shows_recent():
 
             if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(tv_show)
-        return jsonify({'recently added': [result.serialize() for result in results]})
+        return jsonify({'tv_shows': [result.serialize() for result in results]})
     except Exception as e:
         return str(e)
 
