@@ -39,12 +39,7 @@ def hello_world():
 @app.route('/actors', methods=['GET'])
 def get_actors():
     try:
-        #number_of_pages=20
         actors = Actor.query.filter_by()
-        #actors = list()
-        #pagination = Actor.query.order_by(Actor.first_name).paginate(page, number_of_pages, error_out=False)
-        #for key in pagination.items:
-        #    print(key.id)
         return jsonify({'actors': [actor.serialize() for actor in actors]})
     except Exception as e:
         return str(e)
