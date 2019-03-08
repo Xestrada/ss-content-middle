@@ -58,7 +58,7 @@ def recently_added():
             if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(tv_show)
 
-        return jsonify({'recently added': [result.serialize() for result in results]})
+        return jsonify({'recently_added': [result.serialize() for result in results]})
     except Exception as e:
         return str(e)
 
