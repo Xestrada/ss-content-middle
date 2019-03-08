@@ -42,6 +42,7 @@ def recently_added():
         results = list()
         today = date.today()
 
+        # Append all movies in database within 'RECENT_TIME' days
         movies = Movie.query.order_by().all()
         for movie in movies:
             date_movie_added = movie.date_added
@@ -49,6 +50,7 @@ def recently_added():
             if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(movie)
 
+        # Append all tv-shows in database within 'RECENT_TIME' days
         tv_shows = TVShows.query.order_by().all()
         for tv_show in tv_shows:
             date_tv_show_added = tv_show.date_added
