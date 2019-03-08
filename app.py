@@ -134,7 +134,7 @@ def get_actors_by_page(page=1):
 
 # [url]/actors/fn=[first_name]
 @app.route('/actors/fn=<first_name>', methods=['GET'])
-@app.route('/actors/fn=', methods = ['GET'])
+@app.route('/actors/fn=', methods=['GET'])
 def get_actors_by_first_name(first_name=None):
     try:
         query_name = "{}%".format(first_name)
@@ -145,8 +145,8 @@ def get_actors_by_first_name(first_name=None):
 
 
 # [url]/actors/ln=[last_name]
-@app.route('/actors/ln=<last_name>', methods = ['GET'])
-@app.route('/actors/ln=', methods = ['GET'])
+@app.route('/actors/ln=<last_name>', methods=['GET'])
+@app.route('/actors/ln=', methods=['GET'])
 def get_actors_by_last_name(last_name=None):
     try:
         query_name = "{}%".format(last_name)
@@ -157,8 +157,8 @@ def get_actors_by_last_name(last_name=None):
 
 
 # [url]/actors/full=[full_name]
-@app.route('/actors/full=<full_name>', methods = ['GET'])
-@app.route('/actors/full=', methods = ['GET'])
+@app.route('/actors/full=<full_name>', methods=['GET'])
+@app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None):
     try:
         query_name = "%{}%".format(full_name)
@@ -225,7 +225,7 @@ def get_movies_by_title(title=None, search_all=False):
 @app.route('/movies/actor=', methods=['GET'])
 def get_movies_by_actor(actor_name=None):
     try:
-        movies=list()
+        movies = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
         if actor_name is not None:
             movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
@@ -244,7 +244,7 @@ def get_movies_by_actor(actor_name=None):
 @app.route('/tv_shows/actor=', methods=['GET'])
 def get_tv_shows_by_actor(actor_name=None):
     try:
-        tv_shows=list()
+        tv_shows = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
         if actor_name is not None:
             tv_shows_actor_rel = ActorsTVShow.query.filter_by(actors_id=actor_name.id)
@@ -515,6 +515,7 @@ def get_tv_shows_by_year(year=None, search_all=False):
     except Exception as e:
         return str(e)
 
+
 # Return a list of movies that match query in any column
 def get_movies_search_all(query):
     movies = list()
@@ -585,4 +586,3 @@ def get_tv_shows_search_all(query):
 
 if __name__ == '__main__':
     app.run(port=port)
-
