@@ -70,53 +70,13 @@ def get_all_results(query=None, page=1):
     try:
         results = list()
 
-        # movie_title = query
-        movies = get_movies_by_title(query, True)
-        if len(movies) != 0:
-            for movie in movies:
-                results.append(movie)
+        movies = get_movies_search_all(query)
+        for movie in movies:
+            results.append(movie)
 
-        # movie_service = query
-        movies = get_movies_by_service(query, True)
-        if len(movies) != 0:
-            for movie in movies:
-                results.append(movie)
-
-        # movie_genre = query
-        movies = get_movies_by_genre(query, True)
-        if len(movies) != 0:
-            for movie in movies:
-                results.append(movie)
-
-        # movie_year = query
-        movies = get_movies_by_year(query, True)
-        if len(movies) != 0:
-            for movie in movies:
-                results.append(movie)
-
-        # tv-show_title = query
-        tv_shows = get_tv_shows_by_title(query, True)
-        if len(tv_shows) != 0:
-            for tv_show in tv_shows:
-                results.append(tv_show)
-
-        # tv-show_service = query
-        tv_shows = get_tv_shows_by_service(query, True)
-        if len(tv_shows) != 0:
-            for tv_show in tv_shows:
-                results.append(tv_show)
-
-        # tv-show genre = query
-        tv_shows = get_tv_shows_by_genre(query, True)
-        if len(tv_shows) != 0:
-            for tv_show in tv_shows:
-                results.append(tv_show)
-
-        # tv-show year = query
-        tv_shows = get_tv_shows_by_year(query, True)
-        if len(tv_shows) != 0:
-            for tv_show in tv_shows:
-                results.append(tv_show)
+        tv_shows = get_tv_shows_search_all(query)
+        for tv_show in tv_shows:
+            results.append(tv_show)
 
         # remove any element in results is not a model
         i = 0
@@ -296,7 +256,6 @@ def get_tv_shows_by_actor(actor_name=None):
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
         return str(e)
-
 
 
 # Query Movies by Service Provider
@@ -555,6 +514,73 @@ def get_tv_shows_by_year(year=None, search_all=False):
             return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
     except Exception as e:
         return str(e)
+
+# Return a list of movies that match query in any column
+def get_movies_search_all(query):
+    movies = list()
+
+    # movie_title = query
+    movies_title = get_movies_by_title(query, True)
+    if len(movies_title) != 0:
+        for movie in movies_title:
+            movies.append(movie)
+
+    # movie_service = query
+    movies_service = get_movies_by_service(query, True)
+    if len(movies_service) != 0:
+        for movie in movies_service:
+            movies.append(movie)
+
+    # movie_genre = query
+    movies_genre = get_movies_by_genre(query, True)
+    if len(movies_genre) != 0:
+        for movie in movies_genre:
+            movies.append(movie)
+
+    # movie_year = query
+    movies_year = get_movies_by_year(query, True)
+    if len(movies_year) != 0:
+        for movie in movies_year:
+            movies.append(movie)
+
+    # Ensure no duplicates
+    movies = list(set(movies))
+
+    return movies
+
+
+# Return a list of tv_shows that match query in any column
+def get_tv_shows_search_all(query):
+    tv_shows = list()
+
+    # tv-show_title = query
+    tv_shows_title = get_tv_shows_by_title(query, True)
+    if len(tv_shows_title) != 0:
+        for tv_show in tv_shows_title:
+            tv_shows.append(tv_show)
+
+    # tv-show_service = query
+    tv_shows_service = get_tv_shows_by_service(query, True)
+    if len(tv_shows_service) != 0:
+        for tv_show in tv_shows_service:
+            tv_shows.append(tv_show)
+
+    # tv-show genre = query
+    tv_shows_genre = get_tv_shows_by_genre(query, True)
+    if len(tv_shows_genre) != 0:
+        for tv_show in tv_shows_genre:
+            tv_shows.append(tv_show)
+
+    # tv-show year = query
+    tv_shows_year = get_tv_shows_by_year(query, True)
+    if len(tv_shows_year) != 0:
+        for tv_show in tv_shows_year:
+            tv_shows.append(tv_show)
+
+    # Ensure no duplicates
+    tv_shows = list(set(tv_shows))
+
+    return tv_shows
 
 
 if __name__ == '__main__':
