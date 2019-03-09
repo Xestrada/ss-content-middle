@@ -223,9 +223,10 @@ def get_movies_by_title(title=None, page=1, search_all=False):
 
 
 # [url]/movies/actor=<actor_full_name>
+@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/movies/actor=<actor_name>', methods=['GET'])
 @app.route('/movies/actor=', methods=['GET'])
-def get_movies_by_actor(actor_name=None):
+def get_movies_by_actor(actor_name=None, page=1):
     try:
         movies = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
@@ -236,7 +237,7 @@ def get_movies_by_actor(actor_name=None):
                 movie_id.append(mar.movie_id)
             for id in movie_id:
                 movies.append(Movie.query.filter_by(id=id).first())
-
+        movies = pseudo_paginate(page, movies)
         return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
         return str(e)
