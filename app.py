@@ -123,12 +123,14 @@ def get_actors_by_page(page=1):
 
 
 # [url]/actors/fn=[first_name]
+@app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
-def get_actors_by_first_name(first_name=None):
+def get_actors_by_first_name(first_name=None, page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
+        actors_first_name = pseudo_paginate(page, actors_first_name)
         return jsonify({'actors': [actor.serialize() for actor in actors_first_name]})
     except Exception as e:
         return str(e)
