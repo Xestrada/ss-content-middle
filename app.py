@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import date, timedelta
 import pymysql
 import os
+import math
 
 # Setup App
 app = Flask(__name__)
@@ -59,10 +60,7 @@ def recently_added(page=1):
             if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(tv_show)
 
-        # Paginate results
-        results = pseudo_paginate(page, results)
-
-        return jsonify({'recently_added': [result.serialize() for result in results]})
+        return paginated_json('recently_added', results, page)
     except Exception as e:
         return str(e)
 
@@ -74,40 +72,30 @@ def get_all_results(query=None, page=1):
     try:
         results = list()
 
+        # Append all movies in database with matching query
         movies = get_movies_search_all(query)
         for movie in movies:
             results.append(movie)
 
+        # Append all tv-shows in database with matching query
         tv_shows = get_tv_shows_search_all(query)
         for tv_show in tv_shows:
             results.append(tv_show)
 
-        print(results)
-
-        # Paginate results
-        results = pseudo_paginate(page, results)
-
-        return jsonify({'all': [result.serialize() for result in results]})
-
+        return paginated_json('all', results, page)
     except Exception as e:
         return str(e)
 
 
 # [url]/actors
-@app.route('/actors', methods=['GET'])
-def get_actors():
-    try:
-        actors = Actor.query.order_by().all()
-        return jsonify({'actors': [actor.serialize() for actor in actors]})
-    except Exception as e:
-        return str(e)
-
-
 # [url]/actors/page=[page_number]
 @app.route('/actors/page=<int:page>', methods=['GET'])
 @app.route('/actors/page=', methods=['GET'])
+@app.route('/actors', methods=['GET'])
 def get_actors_by_page(page=1):
     try:
+        actors = Actor.query.order_by().all()
+        max_page = int(math.ceil(actors[-1].id / app.config['POSTS_PER_PAGE']))
         actors = list()
 
         # Create a tuple of actors in alphabetical order
@@ -117,48 +105,45 @@ def get_actors_by_page(page=1):
         for item in pagination.items:
             actors.append(Actor.query.filter_by(id=item.id).first())
 
-        return jsonify({'actors': [actor.serialize() for actor in actors]})
+        json = make_response(jsonify({'actors': [actor.serialize() for actor in actors]}))
+        json.headers['current_page'] = page
+        json.headers['max_pages'] = max_page
+        return json
     except Exception as e:
         return str(e)
 
 
 # [url]/actors/fn=[first_name]
-@app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
-def get_actors_by_first_name(first_name=None, page=1):
+def get_actors_by_first_name(first_name=None):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
-        actors_first_name = pseudo_paginate(page, actors_first_name)
         return jsonify({'actors': [actor.serialize() for actor in actors_first_name]})
     except Exception as e:
         return str(e)
 
 
 # [url]/actors/ln=[last_name]
-@app.route('/actors/ln=<last_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page=1):
+def get_actors_by_last_name(last_name=None):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
-        actors_last_name = pseudo_paginate(page, actors_last_name)
         return jsonify({'actors': [actor.serialize() for actor in actors_last_name]})
     except Exception as e:
         return str(e)
 
 
 # [url]/actors/full=[full_name]
-@app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
-def get_actors_by_full_name(full_name=None, page=1):
+def get_actors_by_full_name(full_name=None):
     try:
         query_name = "%{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
-        actors_full_name = pseudo_paginate(page, actors_full_name)
         return jsonify({'actors': [actor.serialize() for actor in actors_full_name]})
     except Exception as e:
         return str(e)
@@ -193,7 +178,7 @@ def get_movies_recent(page=1):
 
         results = pseudo_paginate(page, results)
 
-        return jsonify({'movies': [result.serialize() for result in results]})
+        return paginated_json('movies', results, page)
     except Exception as e:
         return str(e)
 
@@ -202,7 +187,7 @@ def get_movies_recent(page=1):
 @app.route('/movies/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/movies/title=<title>', methods=['GET'])
 @app.route('/movies/title=', methods=['GET'])
-def get_movies_by_title(title=None, page=1, search_all=False):
+def get_movies_by_title(title=None, search_all=False, page=1):
     try:
         query_title = "%{}%".format(title)
         movies = Movie.query.filter(Movie.title.like(query_title)).all()
@@ -216,17 +201,15 @@ def get_movies_by_title(title=None, page=1, search_all=False):
 
         # return json of queried movies
         else:
-            movies = pseudo_paginate(page, movies)
-            return jsonify({'movies': [movie.serialize() for movie in movies]})
+            return paginated_json('movies', movies, page)
     except Exception as e:
         return str(e)
 
 
 # [url]/movies/actor=<actor_full_name>
-@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/movies/actor=<actor_name>', methods=['GET'])
 @app.route('/movies/actor=', methods=['GET'])
-def get_movies_by_actor(actor_name=None, page=1):
+def get_movies_by_actor(actor_name=None):
     try:
         movies = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
@@ -237,7 +220,7 @@ def get_movies_by_actor(actor_name=None, page=1):
                 movie_id.append(mar.movie_id)
             for id in movie_id:
                 movies.append(Movie.query.filter_by(id=id).first())
-        movies = pseudo_paginate(page, movies)
+
         return jsonify({'movies': [movie.serialize() for movie in movies]})
     except Exception as e:
         return str(e)
@@ -267,8 +250,9 @@ def get_tv_shows_by_actor(actor_name=None):
 @app.route('/movies/service=<service>/page=<int:page>', methods=['GET'])
 @app.route('/movies/service=<service>', methods=['GET'])
 @app.route('/movies/service=', methods=['GET'])
-def get_movies_by_service(service=None, page=1, search_all=False):
+def get_movies_by_service(service=None, search_all=False, page=1):
     try:
+        results = list()
         movies = Movie.query.filter_by(service=service)
 
         # return list for search all route
@@ -278,10 +262,12 @@ def get_movies_by_service(service=None, page=1, search_all=False):
                 movie_list.append(movie)
             return movie_list
 
+        for movie in movies:
+            results.append(movie)
+
         # return json of queried movies
         else:
-            movies = pseudo_paginate(page, movies)
-            return jsonify({'movies': [movie.serialize() for movie in movies]})
+            return paginated_json('movies', results, page)
     except Exception as e:
         return str(e)
 
@@ -291,7 +277,7 @@ def get_movies_by_service(service=None, page=1, search_all=False):
 @app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
-def get_movies_by_genre(genre=None, page=1, search_all=False):
+def get_movies_by_genre(genre=None, search_all=False, page=1):
     try:
         movies = list()
 
@@ -319,10 +305,8 @@ def get_movies_by_genre(genre=None, page=1, search_all=False):
                 movie_list.append(movie)
             return movie_list
 
-        # return json of queried movies
         else:
-            movies = pseudo_paginate(page, movies)
-            return jsonify({'movies': [movie.serialize() for movie in movies]})
+            return paginated_json('movies', movies, page)
     except Exception as e:
         return str(e)
 
@@ -332,7 +316,7 @@ def get_movies_by_genre(genre=None, page=1, search_all=False):
 @app.route('/movies/year=<year>/page=<int:page>', methods=['GET'])
 @app.route('/movies/year=<year>', methods=['GET'])
 @app.route('/movies/year=', methods=['GET'])
-def get_movies_by_year(year=None, page=1, search_all=False):
+def get_movies_by_year(year=None, search_all=False, page=1):
     try:
         movies = list()
         if year is not None and int(year) > 0:
@@ -347,8 +331,7 @@ def get_movies_by_year(year=None, page=1, search_all=False):
 
         # return json of queried movies
         else:
-            movies = pseudo_paginate(page, movies)
-            return jsonify({'movies': [movie.serialize() for movie in movies]})
+            return paginated_json('movies', movies, page)
     except Exception as e:
         return str(e)
 
@@ -380,8 +363,7 @@ def get_tv_shows_recent(page=1):
             if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(tv_show)
 
-        results = pseudo_paginate(page, results)
-        return jsonify({'tv_shows': [result.serialize() for result in results]})
+        return paginated_json('tv_shows', results, page)
     except Exception as e:
         return str(e)
 
@@ -390,7 +372,7 @@ def get_tv_shows_recent(page=1):
 @app.route('/tv_shows/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/title=<title>', methods=['GET'])
 @app.route('/tv_shows/title=', methods=['GET'])
-def get_tv_shows_by_title(title=None, page=1, search_all=False):
+def get_tv_shows_by_title(title=None, search_all=False, page=1):
     try:
         query_title = "%{}%".format(title)
         tv_shows = TVShows.query.filter(TVShows.title.like(query_title)).all()
@@ -404,8 +386,7 @@ def get_tv_shows_by_title(title=None, page=1, search_all=False):
 
         # return json of queried tv_shows
         else:
-            tv_shows = pseudo_paginate(page, tv_shows)
-            return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+            return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
 
@@ -415,8 +396,9 @@ def get_tv_shows_by_title(title=None, page=1, search_all=False):
 @app.route('/tv_shows/service=<service>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/service=<service>', methods=['GET'])
 @app.route('/tv_shows/service=', methods=['GET'])
-def get_tv_shows_by_service(service=None, page=1, search_all=False):
+def get_tv_shows_by_service(service=None, search_all=False, page=1):
     try:
+        results = list()
         tv_shows = TVShows.query.filter_by(service=service)
 
         # return list for search all route
@@ -426,10 +408,11 @@ def get_tv_shows_by_service(service=None, page=1, search_all=False):
                 tv_list.append(tv_show)
             return tv_list
 
-        # return json of queried tv_shows
+        for tv_show in tv_shows:
+            results.append(tv_show)
+
         else:
-            tv_shows = pseudo_paginate(page, tv_shows)
-            return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+            return paginated_json('tv_shows', results, page)
     except Exception as e:
         return str(e)
 
@@ -439,7 +422,7 @@ def get_tv_shows_by_service(service=None, page=1, search_all=False):
 @app.route('/tv_shows/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
 @app.route('/tv_shows/genre=', methods=['GET'])
-def get_tv_shows_by_genre(genre=None, page=1, search_all=False):
+def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
     try:
         tv_shows = list()
 
@@ -469,9 +452,7 @@ def get_tv_shows_by_genre(genre=None, page=1, search_all=False):
 
         # return json of queried tv_shows
         else:
-            tv_shows = pseudo_paginate(page, tv_shows)
-            return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-
+            return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
 
@@ -481,7 +462,7 @@ def get_tv_shows_by_genre(genre=None, page=1, search_all=False):
 @app.route('/tv_shows/year=<year>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/year=<year>', methods=['GET'])
 @app.route('/tv_shows/year=', methods=['GET'])
-def get_tv_shows_by_year(year=None, page=1, search_all=False):
+def get_tv_shows_by_year(year=None, search_all=False, page=1):
     try:
         tv_shows = list()
 
@@ -531,8 +512,7 @@ def get_tv_shows_by_year(year=None, page=1, search_all=False):
 
         # return json of queried tv_shows
         else:
-            tv_shows = pseudo_paginate(page, tv_shows)
-            return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+            return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
 
@@ -627,6 +607,24 @@ def pseudo_paginate(page: int, list_to_paginate: []):
         end_page = len(list_to_paginate)
 
     return list_to_paginate[start_page:end_page]
+
+
+# Return json
+def paginated_json(json_name: str, queried_results: [], page: int):
+    num_pages = max_pages(queried_results)
+
+    # Paginate results
+    results = pseudo_paginate(page, queried_results)
+
+    json = make_response(jsonify({json_name: [result.serialize() for result in results]}))
+    json.headers['current_page'] = page
+    json.headers['max_pages'] = num_pages
+    return json
+
+
+# Return max pages for specified query
+def max_pages(queried_list: []):
+    return int(math.ceil(len(queried_list) / app.config['POSTS_PER_PAGE']))
 
 
 if __name__ == '__main__':
