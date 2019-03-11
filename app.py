@@ -213,48 +213,6 @@ def get_movies_by_title(title=None, search_all=False, page=1):
         return str(e)
 
 
-# [url]/movies/actor=[actor_full_name]/page=[page]
-# [url]/movies/actor=[actor_full_name]
-@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
-@app.route('/movies/actor=<actor_name>', methods=['GET'])
-@app.route('/movies/actor=', methods=['GET'])
-def get_movies_by_actor(actor_name=None, page=1):
-    try:
-        movies = list()
-        actor_name = Actor.query.filter_by(full_name=actor_name).first()
-        if actor_name is not None:
-            movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
-            movie_id = list()
-            for mar in movie_actor_rel:
-                movie_id.append(mar.movie_id)
-            for id in movie_id:
-                movies.append(Movie.query.filter_by(id=id).first())
-
-        return paginated_json("movies", movies, page)
-    except Exception as e:
-        return str(e)
-
-# [url]/tv_shows/actor=[actor_full_name]/page=[page]
-# [url]/tv_shows/actor=[actor_full_name]
-@app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
-@app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
-@app.route('/tv_shows/actor=', methods=['GET'])
-def get_tv_shows_by_actor(actor_name=None, page=1):
-    try:
-        tv_shows = list()
-        actor_name = Actor.query.filter_by(full_name=actor_name).first()
-        if actor_name is not None:
-            tv_shows_actor_rel = ActorsTVShow.query.filter_by(actors_id=actor_name.id)
-            tv_shows_id = list()
-            for tar in tv_shows_actor_rel:
-                tv_shows_id.append(tar.tv_show_id)
-            for id in tv_shows_id:
-                tv_shows.append(TVShows.query.filter_by(id=id).first())
-        return paginated_json('tv_shows', tv_shows, page)
-    except Exception as e:
-        return str(e)
-
-
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
 @app.route('/movies/service=<service>/page=<int:page>', methods=['GET'])
@@ -343,6 +301,28 @@ def get_movies_by_year(year=None, search_all=False, page=1):
         # return json of queried movies
         else:
             return paginated_json('movies', movies, page)
+    except Exception as e:
+        return str(e)
+
+
+# [url]/movies/actor=[actor_full_name]/page=[page]
+# [url]/movies/actor=[actor_full_name]
+@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
+@app.route('/movies/actor=<actor_name>', methods=['GET'])
+@app.route('/movies/actor=', methods=['GET'])
+def get_movies_by_actor(actor_name=None, page=1):
+    try:
+        movies = list()
+        actor_name = Actor.query.filter_by(full_name=actor_name).first()
+        if actor_name is not None:
+            movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
+            movie_id = list()
+            for mar in movie_actor_rel:
+                movie_id.append(mar.movie_id)
+            for id in movie_id:
+                movies.append(Movie.query.filter_by(id=id).first())
+
+        return paginated_json("movies", movies, page)
     except Exception as e:
         return str(e)
 
@@ -578,6 +558,28 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
             return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
+
+
+# [url]/tv_shows/actor=[actor_full_name]/page=[page]
+# [url]/tv_shows/actor=[actor_full_name]
+@app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
+@app.route('/tv_shows/actor=', methods=['GET'])
+def get_tv_shows_by_actor(actor_name=None, page=1):
+    try:
+        tv_shows = list()
+        actor_name = Actor.query.filter_by(full_name=actor_name).first()
+        if actor_name is not None:
+            tv_shows_actor_rel = ActorsTVShow.query.filter_by(actors_id=actor_name.id)
+            tv_shows_id = list()
+            for tar in tv_shows_actor_rel:
+                tv_shows_id.append(tar.tv_show_id)
+            for id in tv_shows_id:
+                tv_shows.append(TVShows.query.filter_by(id=id).first())
+        return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
+
 
 
 # Return a list of tv_shows that match query in any column
