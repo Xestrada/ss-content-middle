@@ -9,7 +9,7 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = 'key'
     SQLALCHEMY_DATABASE_URI = os.environ['AWS_RDS_URL']
-    POSTS_PER_PAGE = 2  # How many items to display per page (for pagination)
+    POSTS_PER_PAGE = 5  # How many items to display per page (for pagination)
     RECENT_TIME = 30  # How many days to consider recently added
 
 
