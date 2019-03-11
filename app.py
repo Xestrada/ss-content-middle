@@ -37,8 +37,8 @@ def hello_world():
 
 
 # [url]/recently_added
-@app.route('/recently_added/page=<int:page>')
-@app.route('/recently_added')
+@app.route('/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/recently_added', methods=['GET'])
 def recently_added(page=1):
     try:
         results = list()
@@ -65,20 +65,22 @@ def recently_added(page=1):
         return str(e)
 
 
-# [url]/search=[query]
-@app.route('/search=<query>/page=<int:page>')
-@app.route('/search=<query>')
+# Search All Route
+# [url]/all=[query]
+@app.route('/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/all=<query>', methods=['GET'])
+@app.route('/all=', methods=['GET'])
 def get_all_results(query=None, page=1):
     try:
         results = list()
 
         # Append all movies in database with matching query
-        movies = get_movies_search_all(query)
+        movies = get_movies_search_all(query, True)
         for movie in movies:
             results.append(movie)
 
         # Append all tv-shows in database with matching query
-        tv_shows = get_tv_shows_search_all(query)
+        tv_shows = get_tv_shows_search_all(query, True)
         for tv_show in tv_shows:
             results.append(tv_show)
 
@@ -161,8 +163,8 @@ def get_movies():
 
 
 # [url/movies/recently_added
-@app.route('/movies/recently_added/page=<int:page>')
-@app.route('/movies/recently_added')
+@app.route('/movies/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/movies/recently_added', methods=['GET'])
 def get_movies_recent(page=1):
     try:
         results = list()
@@ -336,6 +338,57 @@ def get_movies_by_year(year=None, search_all=False, page=1):
         return str(e)
 
 
+# Return a list of movies that match query in any column
+@app.route('/movies/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/movies/all=<query>', methods=['GET'])
+@app.route('/movies/all=', methods=['GET'])
+def get_movies_search_all(query=None, search_all=False, page=1):
+    try:
+        movies = list()
+
+        # movie_title = query
+        movies_title = get_movies_by_title(query, True)
+        if len(movies_title) != 0:
+            for movie in movies_title:
+                movies.append(movie)
+
+        # movie_service = query
+        movies_service = get_movies_by_service(query, True)
+        if len(movies_service) != 0:
+            for movie in movies_service:
+                movies.append(movie)
+
+        # movie_genre = query
+        movies_genre = get_movies_by_genre(query, True)
+        if len(movies_genre) != 0:
+            for movie in movies_genre:
+                movies.append(movie)
+
+        # movie_year = query
+        movies_year = get_movies_by_year(query, True)
+        if len(movies_year) != 0:
+            for movie in movies_year:
+                movies.append(movie)
+
+        i = 0
+        while i < len(movies):
+            if isinstance(movies[i], str):
+                movies.remove(movies[i])
+                i -= 1
+            i += 1
+
+        # Ensure no duplicates and sorted
+        movies = list(set(movies))
+        movies = sorted(movies, key=lambda movie: movie.id)
+
+        if search_all:
+            return movies
+        else:
+            return paginated_json('movies', movies, page)
+    except Exception as e:
+        return str(e)
+
+
 # Query All TV Shows in Database
 # [url]/tv_shows
 @app.route('/tv_shows', methods=['GET'])
@@ -348,8 +401,8 @@ def get_tv_shows():
 
 
 # [url/tv_shows/recently_added
-@app.route('/tv_shows/recently_added/page=<int:page>')
-@app.route('/tv_shows/recently_added')
+@app.route('/tv_shows/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/recently_added', methods=['GET'])
 def get_tv_shows_recent(page=1):
     try:
         results = list()
@@ -517,86 +570,55 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
         return str(e)
 
 
-# Return a list of movies that match query in any column
-def get_movies_search_all(query):
-    movies = list()
-
-    # movie_title = query
-    movies_title = get_movies_by_title(query, True)
-    if len(movies_title) != 0:
-        for movie in movies_title:
-            movies.append(movie)
-
-    # movie_service = query
-    movies_service = get_movies_by_service(query, True)
-    if len(movies_service) != 0:
-        for movie in movies_service:
-            movies.append(movie)
-
-    # movie_genre = query
-    movies_genre = get_movies_by_genre(query, True)
-    if len(movies_genre) != 0:
-        for movie in movies_genre:
-            movies.append(movie)
-
-    # movie_year = query
-    movies_year = get_movies_by_year(query, True)
-    if len(movies_year) != 0:
-        for movie in movies_year:
-            movies.append(movie)
-
-    i = 0
-    while i < len(movies):
-        if isinstance(movies[i], str):
-            movies.remove(movies[i])
-            i -= 1
-        i += 1
-
-    # Ensure no duplicates and sorted
-    movies = list(set(movies))
-
-    return sorted(movies, key=lambda movie: movie.id)
-
-
 # Return a list of tv_shows that match query in any column
-def get_tv_shows_search_all(query):
-    tv_shows = list()
+@app.route('/tv_shows/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/all=<query>', methods=['GET'])
+@app.route('/tv_shows/all=', methods=['GET'])
+def get_tv_shows_search_all(query=None, search_all=False, page=1):
+    try:
+        tv_shows = list()
 
-    # tv-show_title = query
-    tv_shows_title = get_tv_shows_by_title(query, True)
-    if len(tv_shows_title) != 0:
-        for tv_show in tv_shows_title:
-            tv_shows.append(tv_show)
+        # tv-show_title = query
+        tv_shows_title = get_tv_shows_by_title(query, True)
+        if len(tv_shows_title) != 0:
+            for tv_show in tv_shows_title:
+                tv_shows.append(tv_show)
 
-    # tv-show_service = query
-    tv_shows_service = get_tv_shows_by_service(query, True)
-    if len(tv_shows_service) != 0:
-        for tv_show in tv_shows_service:
-            tv_shows.append(tv_show)
+        # tv-show_service = query
+        tv_shows_service = get_tv_shows_by_service(query, True)
+        if len(tv_shows_service) != 0:
+            for tv_show in tv_shows_service:
+                tv_shows.append(tv_show)
 
-    # tv-show genre = query
-    tv_shows_genre = get_tv_shows_by_genre(query, True)
-    if len(tv_shows_genre) != 0:
-        for tv_show in tv_shows_genre:
-            tv_shows.append(tv_show)
+        # tv-show genre = query
+        tv_shows_genre = get_tv_shows_by_genre(query, True)
+        if len(tv_shows_genre) != 0:
+            for tv_show in tv_shows_genre:
+                tv_shows.append(tv_show)
 
-    # tv-show year = query
-    tv_shows_year = get_tv_shows_by_year(query, True)
-    if len(tv_shows_year) != 0:
-        for tv_show in tv_shows_year:
-            tv_shows.append(tv_show)
+        # tv-show year = query
+        tv_shows_year = get_tv_shows_by_year(query, True)
+        if len(tv_shows_year) != 0:
+            for tv_show in tv_shows_year:
+                tv_shows.append(tv_show)
 
-    i = 0
-    while i < len(tv_shows):
-        if isinstance(tv_shows[i], str):
-            tv_shows.remove(tv_shows[i])
-            i -= 1
-        i += 1
+        i = 0
+        while i < len(tv_shows):
+            if isinstance(tv_shows[i], str):
+                tv_shows.remove(tv_shows[i])
+                i -= 1
+            i += 1
 
-    # Ensure no duplicates and sorted
-    tv_shows = list(set(tv_shows))
+        # Ensure no duplicates and sorted
+        tv_shows = list(set(tv_shows))
+        tv_shows = sorted(tv_shows, key=lambda tv_show: tv_show.id)
 
-    return sorted(tv_shows, key=lambda tv_show: tv_show.id)
+        if search_all:
+            return tv_shows
+        else:
+            return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
 
 
 # Pseudo Pagination
