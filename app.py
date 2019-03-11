@@ -37,8 +37,8 @@ def hello_world():
 
 
 # [url]/recently_added
-@app.route('/recently_added/page=<int:page>')
-@app.route('/recently_added')
+@app.route('/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/recently_added', methods=['GET'])
 def recently_added(page=1):
     try:
         results = list()
@@ -65,20 +65,22 @@ def recently_added(page=1):
         return str(e)
 
 
-# [url]/search=[query]
-@app.route('/search=<query>/page=<int:page>')
-@app.route('/search=<query>')
+# Search All Route
+# [url]/all=[query]
+@app.route('/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/all=<query>', methods=['GET'])
+@app.route('/all=', methods=['GET'])
 def get_all_results(query=None, page=1):
     try:
         results = list()
 
         # Append all movies in database with matching query
-        movies = get_movies_search_all(query)
+        movies = get_movies_search_all(query, True)
         for movie in movies:
             results.append(movie)
 
         # Append all tv-shows in database with matching query
-        tv_shows = get_tv_shows_search_all(query)
+        tv_shows = get_tv_shows_search_all(query, True)
         for tv_show in tv_shows:
             results.append(tv_show)
 
@@ -113,38 +115,43 @@ def get_actors_by_page(page=1):
         return str(e)
 
 
+# [url]/actors/fn=[first_name]/page=[page]
 # [url]/actors/fn=[first_name]
+@app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
-def get_actors_by_first_name(first_name=None):
+def get_actors_by_first_name(first_name=None, page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
-        return jsonify({'actors': [actor.serialize() for actor in actors_first_name]})
+        return paginated_json('actors', actors_first_name, page)
     except Exception as e:
         return str(e)
 
 
+# [url]/actors/ln=[last_name]/page=[page]
 # [url]/actors/ln=[last_name]
+@app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None):
+def get_actors_by_last_name(last_name=None, page = 1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
-        return jsonify({'actors': [actor.serialize() for actor in actors_last_name]})
+        return paginated_json('actors', actors_last_name, page)
     except Exception as e:
         return str(e)
 
-
+# [url]/actors/full=[full_name]/page=<int:page>
 # [url]/actors/full=[full_name]
+@app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
-def get_actors_by_full_name(full_name=None):
+def get_actors_by_full_name(full_name=None, page=1):
     try:
         query_name = "%{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
-        return jsonify({'actors': [actor.serialize() for actor in actors_full_name]})
+        return paginated_json('actors', actors_full_name, page)
     except Exception as e:
         return str(e)
 
@@ -161,8 +168,8 @@ def get_movies():
 
 
 # [url/movies/recently_added
-@app.route('/movies/recently_added/page=<int:page>')
-@app.route('/movies/recently_added')
+@app.route('/movies/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/movies/recently_added', methods=['GET'])
 def get_movies_recent(page=1):
     try:
         results = list()
@@ -206,45 +213,6 @@ def get_movies_by_title(title=None, search_all=False, page=1):
         return str(e)
 
 
-# [url]/movies/actor=<actor_full_name>
-@app.route('/movies/actor=<actor_name>', methods=['GET'])
-@app.route('/movies/actor=', methods=['GET'])
-def get_movies_by_actor(actor_name=None):
-    try:
-        movies = list()
-        actor_name = Actor.query.filter_by(full_name=actor_name).first()
-        if actor_name is not None:
-            movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
-            movie_id = list()
-            for mar in movie_actor_rel:
-                movie_id.append(mar.movie_id)
-            for id in movie_id:
-                movies.append(Movie.query.filter_by(id=id).first())
-
-        return jsonify({'movies': [movie.serialize() for movie in movies]})
-    except Exception as e:
-        return str(e)
-
-
-# [url]/tv_shows/actor=<actor_full_name>
-@app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
-@app.route('/tv_shows/actor=', methods=['GET'])
-def get_tv_shows_by_actor(actor_name=None):
-    try:
-        tv_shows = list()
-        actor_name = Actor.query.filter_by(full_name=actor_name).first()
-        if actor_name is not None:
-            tv_shows_actor_rel = ActorsTVShow.query.filter_by(actors_id=actor_name.id)
-            tv_shows_id = list()
-            for tar in tv_shows_actor_rel:
-                tv_shows_id.append(tar.tv_show_id)
-            for id in tv_shows_id:
-                tv_shows.append(TVShows.query.filter_by(id=id).first())
-        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-    except Exception as e:
-        return str(e)
-
-
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
 @app.route('/movies/service=<service>/page=<int:page>', methods=['GET'])
@@ -274,6 +242,7 @@ def get_movies_by_service(service=None, search_all=False, page=1):
 
 # Query Movies by Genre Type
 # [url]/movies/genre=[genre_type]
+@app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
@@ -336,6 +305,79 @@ def get_movies_by_year(year=None, search_all=False, page=1):
         return str(e)
 
 
+# [url]/movies/actor=[actor_full_name]/page=[page]
+# [url]/movies/actor=[actor_full_name]
+@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
+@app.route('/movies/actor=<actor_name>', methods=['GET'])
+@app.route('/movies/actor=', methods=['GET'])
+def get_movies_by_actor(actor_name=None, page=1):
+    try:
+        movies = list()
+        actor_name = Actor.query.filter_by(full_name=actor_name).first()
+        if actor_name is not None:
+            movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
+            movie_id = list()
+            for mar in movie_actor_rel:
+                movie_id.append(mar.movie_id)
+            for id in movie_id:
+                movies.append(Movie.query.filter_by(id=id).first())
+
+        return paginated_json("movies", movies, page)
+    except Exception as e:
+        return str(e)
+
+
+# Return a list of movies that match query in any column
+@app.route('/movies/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/movies/all=<query>', methods=['GET'])
+@app.route('/movies/all=', methods=['GET'])
+def get_movies_search_all(query=None, search_all=False, page=1):
+    try:
+        movies = list()
+
+        # movie_title = query
+        movies_title = get_movies_by_title(query, True)
+        if len(movies_title) != 0:
+            for movie in movies_title:
+                movies.append(movie)
+
+        # movie_service = query
+        movies_service = get_movies_by_service(query, True)
+        if len(movies_service) != 0:
+            for movie in movies_service:
+                movies.append(movie)
+
+        # movie_genre = query
+        movies_genre = get_movies_by_genre(query, True)
+        if len(movies_genre) != 0:
+            for movie in movies_genre:
+                movies.append(movie)
+
+        # movie_year = query
+        movies_year = get_movies_by_year(query, True)
+        if len(movies_year) != 0:
+            for movie in movies_year:
+                movies.append(movie)
+
+        i = 0
+        while i < len(movies):
+            if isinstance(movies[i], str):
+                movies.remove(movies[i])
+                i -= 1
+            i += 1
+
+        # Ensure no duplicates and sorted
+        movies = list(set(movies))
+        movies = sorted(movies, key=lambda movie: movie.id)
+
+        if search_all:
+            return movies
+        else:
+            return paginated_json('movies', movies, page)
+    except Exception as e:
+        return str(e)
+
+
 # Query All TV Shows in Database
 # [url]/tv_shows
 @app.route('/tv_shows', methods=['GET'])
@@ -348,8 +390,8 @@ def get_tv_shows():
 
 
 # [url/tv_shows/recently_added
-@app.route('/tv_shows/recently_added/page=<int:page>')
-@app.route('/tv_shows/recently_added')
+@app.route('/tv_shows/recently_added/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/recently_added', methods=['GET'])
 def get_tv_shows_recent(page=1):
     try:
         results = list()
@@ -368,6 +410,7 @@ def get_tv_shows_recent(page=1):
         return str(e)
 
 
+# [url]/tv_shows/title=[title]/page=[page]
 # [url]/tv_shows/title=[title]
 @app.route('/tv_shows/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/title=<title>', methods=['GET'])
@@ -517,86 +560,77 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
         return str(e)
 
 
-# Return a list of movies that match query in any column
-def get_movies_search_all(query):
-    movies = list()
+# [url]/tv_shows/actor=[actor_full_name]/page=[page]
+# [url]/tv_shows/actor=[actor_full_name]
+@app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
+@app.route('/tv_shows/actor=', methods=['GET'])
+def get_tv_shows_by_actor(actor_name=None, page=1):
+    try:
+        tv_shows = list()
+        actor_name = Actor.query.filter_by(full_name=actor_name).first()
+        if actor_name is not None:
+            tv_shows_actor_rel = ActorsTVShow.query.filter_by(actors_id=actor_name.id)
+            tv_shows_id = list()
+            for tar in tv_shows_actor_rel:
+                tv_shows_id.append(tar.tv_show_id)
+            for id in tv_shows_id:
+                tv_shows.append(TVShows.query.filter_by(id=id).first())
+        return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
 
-    # movie_title = query
-    movies_title = get_movies_by_title(query, True)
-    if len(movies_title) != 0:
-        for movie in movies_title:
-            movies.append(movie)
-
-    # movie_service = query
-    movies_service = get_movies_by_service(query, True)
-    if len(movies_service) != 0:
-        for movie in movies_service:
-            movies.append(movie)
-
-    # movie_genre = query
-    movies_genre = get_movies_by_genre(query, True)
-    if len(movies_genre) != 0:
-        for movie in movies_genre:
-            movies.append(movie)
-
-    # movie_year = query
-    movies_year = get_movies_by_year(query, True)
-    if len(movies_year) != 0:
-        for movie in movies_year:
-            movies.append(movie)
-
-    i = 0
-    while i < len(movies):
-        if isinstance(movies[i], str):
-            movies.remove(movies[i])
-            i -= 1
-        i += 1
-
-    # Ensure no duplicates and sorted
-    movies = list(set(movies))
-
-    return sorted(movies, key=lambda movie: movie.id)
 
 
 # Return a list of tv_shows that match query in any column
-def get_tv_shows_search_all(query):
-    tv_shows = list()
+@app.route('/tv_shows/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/all=<query>', methods=['GET'])
+@app.route('/tv_shows/all=', methods=['GET'])
+def get_tv_shows_search_all(query=None, search_all=False, page=1):
+    try:
+        tv_shows = list()
 
-    # tv-show_title = query
-    tv_shows_title = get_tv_shows_by_title(query, True)
-    if len(tv_shows_title) != 0:
-        for tv_show in tv_shows_title:
-            tv_shows.append(tv_show)
+        # tv-show_title = query
+        tv_shows_title = get_tv_shows_by_title(query, True)
+        if len(tv_shows_title) != 0:
+            for tv_show in tv_shows_title:
+                tv_shows.append(tv_show)
 
-    # tv-show_service = query
-    tv_shows_service = get_tv_shows_by_service(query, True)
-    if len(tv_shows_service) != 0:
-        for tv_show in tv_shows_service:
-            tv_shows.append(tv_show)
+        # tv-show_service = query
+        tv_shows_service = get_tv_shows_by_service(query, True)
+        if len(tv_shows_service) != 0:
+            for tv_show in tv_shows_service:
+                tv_shows.append(tv_show)
 
-    # tv-show genre = query
-    tv_shows_genre = get_tv_shows_by_genre(query, True)
-    if len(tv_shows_genre) != 0:
-        for tv_show in tv_shows_genre:
-            tv_shows.append(tv_show)
+        # tv-show genre = query
+        tv_shows_genre = get_tv_shows_by_genre(query, True)
+        if len(tv_shows_genre) != 0:
+            for tv_show in tv_shows_genre:
+                tv_shows.append(tv_show)
 
-    # tv-show year = query
-    tv_shows_year = get_tv_shows_by_year(query, True)
-    if len(tv_shows_year) != 0:
-        for tv_show in tv_shows_year:
-            tv_shows.append(tv_show)
+        # tv-show year = query
+        tv_shows_year = get_tv_shows_by_year(query, True)
+        if len(tv_shows_year) != 0:
+            for tv_show in tv_shows_year:
+                tv_shows.append(tv_show)
 
-    i = 0
-    while i < len(tv_shows):
-        if isinstance(tv_shows[i], str):
-            tv_shows.remove(tv_shows[i])
-            i -= 1
-        i += 1
+        i = 0
+        while i < len(tv_shows):
+            if isinstance(tv_shows[i], str):
+                tv_shows.remove(tv_shows[i])
+                i -= 1
+            i += 1
 
-    # Ensure no duplicates and sorted
-    tv_shows = list(set(tv_shows))
+        # Ensure no duplicates and sorted
+        tv_shows = list(set(tv_shows))
+        tv_shows = sorted(tv_shows, key=lambda tv_show: tv_show.id)
 
-    return sorted(tv_shows, key=lambda tv_show: tv_show.id)
+        if search_all:
+            return tv_shows
+        else:
+            return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
 
 
 # Pseudo Pagination
@@ -619,6 +653,8 @@ def paginated_json(json_name: str, queried_results: [], page: int):
     json = make_response(jsonify({json_name: [result.serialize() for result in results]}))
     json.headers['current_page'] = page
     json.headers['max_pages'] = num_pages
+
+    # Headers the Client is Allowed to Access
     json.headers['Access-Control-Expose-Headers'] = 'current_page, max_pages'
     return json
 
