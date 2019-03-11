@@ -619,6 +619,8 @@ def paginated_json(json_name: str, queried_results: [], page: int):
     json = make_response(jsonify({json_name: [result.serialize() for result in results]}))
     json.headers['current_page'] = page
     json.headers['max_pages'] = num_pages
+
+    # Headers the Client is Allowed to Access
     json.headers['Access-Control-Expose-Headers'] = 'current_page, max_pages'
     return json
 
