@@ -125,7 +125,7 @@ def get_actors_by_first_name(first_name=None, page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
-        return paginated_json('movies', actors_first_name, page)
+        return paginated_json('actors', actors_first_name, page)
     except Exception as e:
         return str(e)
 
@@ -140,19 +140,21 @@ def get_actors_by_last_name(last_name=None, page = 1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
-        return paginated_json('movies', actors_last_name, page)
+        return paginated_json('actors', actors_last_name, page)
     except Exception as e:
         return str(e)
 
-
+# [url]/actors/full=[full_name]/page=<int:page>
 # [url]/actors/full=[full_name]
+# [url]/actors/full=
+@app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
-def get_actors_by_full_name(full_name=None):
+def get_actors_by_full_name(full_name=None, page=1):
     try:
         query_name = "%{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
-        return jsonify({'actors': [actor.serialize() for actor in actors_full_name]})
+        return paginated_json('actors', actors_full_name, page)
     except Exception as e:
         return str(e)
 
