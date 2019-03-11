@@ -117,7 +117,6 @@ def get_actors_by_page(page=1):
 
 # [url]/actors/fn=[first_name]/page=[page]
 # [url]/actors/fn=[first_name]
-# [url]/actors/fn=
 @app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
@@ -132,7 +131,6 @@ def get_actors_by_first_name(first_name=None, page=1):
 
 # [url]/actors/ln=[last_name]/page=[page]
 # [url]/actors/ln=[last_name]
-# [url]/actors/ln=
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
@@ -146,7 +144,6 @@ def get_actors_by_last_name(last_name=None, page = 1):
 
 # [url]/actors/full=[full_name]/page=<int:page>
 # [url]/actors/full=[full_name]
-# [url]/actors/full=
 @app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
@@ -216,10 +213,12 @@ def get_movies_by_title(title=None, search_all=False, page=1):
         return str(e)
 
 
-# [url]/movies/actor=<actor_full_name>
+# [url]/movies/actor=[actor_full_name]/page=[page]
+# [url]/movies/actor=[actor_full_name]
+@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/movies/actor=<actor_name>', methods=['GET'])
 @app.route('/movies/actor=', methods=['GET'])
-def get_movies_by_actor(actor_name=None):
+def get_movies_by_actor(actor_name=None, page=1):
     try:
         movies = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
@@ -231,12 +230,12 @@ def get_movies_by_actor(actor_name=None):
             for id in movie_id:
                 movies.append(Movie.query.filter_by(id=id).first())
 
-        return jsonify({'movies': [movie.serialize() for movie in movies]})
+        return paginated_json("movies", movies, page)
     except Exception as e:
         return str(e)
 
-
-# [url]/tv_shows/actor=<actor_full_name>
+# [url]/tv_shows/actor=[actor_full_name]/page=[page]
+# [url]/tv_shows/actor=[actor_full_name]
 @app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
 @app.route('/tv_shows/actor=', methods=['GET'])
@@ -285,6 +284,7 @@ def get_movies_by_service(service=None, search_all=False, page=1):
 
 # Query Movies by Genre Type
 # [url]/movies/genre=[genre_type]
+@app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
@@ -430,6 +430,7 @@ def get_tv_shows_recent(page=1):
         return str(e)
 
 
+# [url]/tv_shows/title=[title]/page=[page]
 # [url]/tv_shows/title=[title]
 @app.route('/tv_shows/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/title=<title>', methods=['GET'])
