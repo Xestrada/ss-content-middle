@@ -251,7 +251,6 @@ def get_movies_by_service(service=None, search_all=False, page=1):
 # Query Movies by Genre Type
 # [url]/movies/genre=[genre_type]
 @app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
-@app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
 def get_movies_by_genre(genre=None, search_all=False, page=1):
