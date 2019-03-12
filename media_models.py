@@ -31,14 +31,16 @@ class Movie(db.Model):
     tag = db.Column(db.VARCHAR)
     url = db.Column(db.VARCHAR)
     date_added = db.Column(db.Date)
+    image_url = db.Column(db.VARCHAR)
 
-    def __init__(self, title, year, service, tag, url, date_added):
+    def __init__(self, title, year, service, tag, url, date_added, image_url):
         self.title = title
         self.year = year
         self.service = service
         self.tag = tag
         self.url = url
         self.date_added = date_added
+        self.image_url = image_url
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -52,6 +54,7 @@ class Movie(db.Model):
             'tag': self.tag,
             'url': self.url,
             'date_added': self.date_added,
+            'image_url': self.image_url,
         }
 
 
@@ -87,8 +90,9 @@ class TVShows(db.Model):
     tag = db.Column(db.VARCHAR)
     url = db.Column(db.VARCHAR)
     date_added = db.Column(db.Date)
+    image_url = db.Column(db.VARCHAR)
 
-    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added):
+    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url):
         self.title = title
         self.year = year
         self.num_seasons = num_seasons
@@ -97,6 +101,7 @@ class TVShows(db.Model):
         self.tag = tag
         self.url = url
         self.date_added = date_added
+        self.image_url = image_url
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -112,6 +117,7 @@ class TVShows(db.Model):
             'tag': self.tag,
             'url': self.url,
             'date_added': self.date_added,
+            'image_url': self.image_url,
         }
 
 
