@@ -24,7 +24,7 @@ port = int(os.environ.get('PORT', 33507))
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
 from media_models import Movie, MovieGenre
-from media_models import TVShows, TVShowGenre
+from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -399,6 +399,37 @@ def get_tv_shows():
     try:
         tv_shows = TVShows.query.all()
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+@app.route('/tv_shows/title=<title>/info')
+def get_tv_show_info(title=None):
+    try:
+        tv_info = list()
+
+        tv_show = TVShows.query.filter_by(title=title).first()
+        tv_show_id = tv_show.id
+        if tv_show_id is not None:
+            # Get List of all entries
+            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
+
+            # For each season
+            for tss in tv_show_seasons:
+
+                # Get all episodes in the season
+                season_id = tss.season
+                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
+
+                episodes = list()
+                # For each episode
+                for ep in season_episodes:
+                    episodes.append(ep)
+
+                entry = TVShowInfo(season_id, episodes)
+                tv_info.append(entry)
+
+        return paginated_json(title, tv_info, 1)
     except Exception as e:
         return str(e)
 
