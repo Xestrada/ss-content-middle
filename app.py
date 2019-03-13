@@ -134,13 +134,14 @@ def get_actors_by_first_name(first_name=None, page=1):
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page = 1):
+def get_actors_by_last_name(last_name=None, page=1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
         return paginated_json('actors', actors_last_name, page)
     except Exception as e:
         return str(e)
+
 
 # [url]/actors/full=[full_name]/page=<int:page>
 # [url]/actors/full=[full_name]
@@ -163,6 +164,20 @@ def get_movies():
     try:
         movies = Movie.query.all()
         return jsonify({'movies': [movie.serialize() for movie in movies]})
+    except Exception as e:
+        return str(e)
+
+
+@app.route('/movies/title=<title>/info')
+def get_movie_info(title=None):
+    try:
+        if title is not None:
+            movie = Movie.query.filter_by(title=title).first()
+
+            if movie is not None:
+                return jsonify({title: movie.serialize()})
+
+        return None
     except Exception as e:
         return str(e)
 
@@ -421,7 +436,7 @@ def get_tv_shows_by_title(title=None, search_all=False, page=1):
 
         # return list for search all route
         if search_all:
-            tv_list = list()
+            tv_list = ()
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
             return tv_list
@@ -578,7 +593,6 @@ def get_tv_shows_by_actor(actor_name=None, page=1):
         return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
-
 
 
 # Return a list of tv_shows that match query in any column
