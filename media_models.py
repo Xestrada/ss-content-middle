@@ -152,12 +152,6 @@ class TVShowSeasons(db.Model):
         self.num_episodes = num_episodes
         self.episodes = self.get_episodes()
 
-    def serialize(self):
-        return {
-            'season': self.season,
-            'episodes': [ep.serialize() for ep in self.episodes],
-        }
-
 
 class TVShowEpisodes(db.Model):
     __tablename__ = 'tv_show_episodes'
