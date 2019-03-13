@@ -437,6 +437,7 @@ def get_tv_show_info(title=None):
                 entry = TVShowInfo(season_id, episodes)
                 tv_info.append(entry)
 
+        # Display Every Season
         return jsonify({title: [tvi.serialize() for tvi in tv_info]})
     except Exception as e:
         return str(e)
