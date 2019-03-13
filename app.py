@@ -410,12 +410,9 @@ def get_tv_shows():
         return str(e)
 
 
-# [url]/tv_shows/title=[title]/info/page=[page]
 # [url]/tv_shows/title=[title]/info
-@app.route('/tv_shows/title=<title>/info/page=<int:page>', methods=['GET'])
-@app.route('/tv_shows/title=<title>/info/page=', methods=['GET'])
 @app.route('/tv_shows/title=<title>/info', methods=['GET'])
-def get_tv_show_info(title=None, page=1):
+def get_tv_show_info(title=None):
     try:
         tv_info = list()
 
@@ -440,7 +437,7 @@ def get_tv_show_info(title=None, page=1):
                 entry = TVShowInfo(season_id, episodes)
                 tv_info.append(entry)
 
-        return paginated_json(title, tv_info, page)
+        return jsonify({title: [tvi.serialize() for tvi in tv_info]})
     except Exception as e:
         return str(e)
 
