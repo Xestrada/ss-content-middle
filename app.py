@@ -175,7 +175,8 @@ def get_movies():
         return str(e)
 
 
-@app.route('/movies/title=<title>/info')
+# [url]/movies/title=[title]/info
+@app.route('/movies/title=<title>/info', methods=['GET'])
 def get_movie_info(title=None):
     try:
         if title is not None:
@@ -183,7 +184,6 @@ def get_movie_info(title=None):
 
             if movie is not None:
                 return jsonify({title: movie.serialize()})
-
         return None
     except Exception as e:
         return str(e)
