@@ -139,3 +139,51 @@ class TVShowGenre(db.Model):
             'tv_show_id': self.tv_show_id,
             'genre_id': self.genre_id,
         }
+
+
+class TVShowSeasons(db.Model):
+    __tablename__ = 'tv_show_season_episodes'
+
+    tv_show_id = db.Column(db.INTEGER, primary_key=True)
+    season = db.Column(db.INTEGER, primary_key=True)
+    num_episodes = db.Column(db.INTEGER)
+
+    def __init__(self, num_episodes):
+        self.num_episodes = num_episodes
+        self.episodes = self.get_episodes()
+
+    def serialize(self):
+        return {
+            'season': self.season,
+            'episodes': [ep.serialize() for ep in self.episodes],
+        }
+
+
+class TVShowEpisodes(db.Model):
+    __tablename__ = 'tv_show_episodes'
+
+    tv_show_id = db.Column(db.INTEGER, primary_key=True)
+    season_id = db.Column(db.INTEGER, primary_key=True)
+    episode = db.Column(db.INTEGER, primary_key=True)
+    episode_name = db.Column(db.VARCHAR)
+
+    def __init__(self, episode_name):
+        self.episode_name = episode_name
+
+    def serialize(self):
+        return {
+            'episode': self.episode,
+            'episode_name': self.episode_name,
+        }
+
+
+class TVShowInfo:
+    def __init__(self, season, episodes):
+        self.season = season
+        self.episodes = episodes
+
+    def serialize(self):
+        return {
+            'season': self.season,
+            'episodes': [ep.serialize() for ep in self.episodes],
+        }
