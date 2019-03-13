@@ -410,8 +410,12 @@ def get_tv_shows():
         return str(e)
 
 
-@app.route('/tv_shows/title=<title>/info')
-def get_tv_show_info(title=None):
+# [url]/tv_shows/title=[title]/info/page=[page]
+# [url]/tv_shows/title=[title]/info
+@app.route('/tv_shows/title=<title>/info/page=<int:page>', methods=['GET'])
+@app.route('/tv_shows/title=<title>/info/page=', methods=['GET'])
+@app.route('/tv_shows/title=<title>/info', methods=['GET'])
+def get_tv_show_info(title=None, page=1):
     try:
         tv_info = list()
 
@@ -436,7 +440,7 @@ def get_tv_show_info(title=None):
                 entry = TVShowInfo(season_id, episodes)
                 tv_info.append(entry)
 
-        return paginated_json(title, tv_info, 1)
+        return paginated_json(title, tv_info, page)
     except Exception as e:
         return str(e)
 
