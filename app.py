@@ -24,7 +24,7 @@ port = int(os.environ.get('PORT', 33507))
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
 from media_models import Movie, MovieGenre
-from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
+from media_models import TVShows, TVShowGenre
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -115,26 +115,27 @@ def get_actors_by_page(page=1):
         return str(e)
 
 
-# [url]/actors/fn=[first_name]/page=[page]
+# [url]/actors/fn=[first_name]/page=[page_number]
 # [url]/actors/fn=[first_name]
 @app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
-def get_actors_by_first_name(first_name=None, page=1):
+def get_actors_by_first_name(first_name=None, search_all=False,page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
+
         return paginated_json('actors', actors_first_name, page)
     except Exception as e:
         return str(e)
 
 
-# [url]/actors/ln=[last_name]/page=[page]
+# [url]/actors/ln=[last_name]/page=[page_number]
 # [url]/actors/ln=[last_name]
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page=1):
+def get_actors_by_last_name(last_name=None, page = 1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
@@ -143,12 +144,18 @@ def get_actors_by_last_name(last_name=None, page=1):
         return str(e)
 
 
-# [url]/actors/full=[full_name]/page=<int:page>
+# also serves as the actors search all function
+# [url]/actors/all=[query]/page=[page_number]
+# [url]/actors/all=[query]
+# [url]/actors/full=[full_name]/page=[page_number]
 # [url]/actors/full=[full_name]
+@app.route('/actors/all=<full_name>/page=<int:page>', methods=['GET'])
+@app.route('/actors/all=<full_name>', methods=['GET'])
+@app.route('/actors/all=', methods=['GET'])
 @app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
-def get_actors_by_full_name(full_name=None, page=1):
+def get_actors_by_full_name(full_name=None, search_all=False, page=1):
     try:
         query_name = "%{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
@@ -164,20 +171,6 @@ def get_movies():
     try:
         movies = Movie.query.all()
         return jsonify({'movies': [movie.serialize() for movie in movies]})
-    except Exception as e:
-        return str(e)
-
-
-@app.route('/movies/title=<title>/info')
-def get_movie_info(title=None):
-    try:
-        if title is not None:
-            movie = Movie.query.filter_by(title=title).first()
-
-            if movie is not None:
-                return jsonify({title: movie.serialize()})
-
-        return None
     except Exception as e:
         return str(e)
 
@@ -219,7 +212,7 @@ def get_movies_by_title(title=None, search_all=False, page=1):
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
-            return movie_list
+            return movies
 
         # return json of queried movies
         else:
@@ -403,37 +396,6 @@ def get_tv_shows():
         return str(e)
 
 
-@app.route('/tv_shows/title=<title>/info')
-def get_tv_show_info(title=None):
-    try:
-        tv_info = list()
-
-        tv_show = TVShows.query.filter_by(title=title).first()
-        tv_show_id = tv_show.id
-        if tv_show_id is not None:
-            # Get List of all entries
-            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
-
-            # For each season
-            for tss in tv_show_seasons:
-
-                # Get all episodes in the season
-                season_id = tss.season
-                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
-
-                episodes = list()
-                # For each episode
-                for ep in season_episodes:
-                    episodes.append(ep)
-
-                entry = TVShowInfo(season_id, episodes)
-                tv_info.append(entry)
-
-        return paginated_json(title, tv_info, 1)
-    except Exception as e:
-        return str(e)
-
-
 # [url/tv_shows/recently_added
 @app.route('/tv_shows/recently_added/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/recently_added', methods=['GET'])
@@ -467,7 +429,7 @@ def get_tv_shows_by_title(title=None, search_all=False, page=1):
 
         # return list for search all route
         if search_all:
-            tv_list = ()
+            tv_list = list()
             for tv_show in tv_shows:
                 tv_list.append(tv_show)
             return tv_list
@@ -610,7 +572,7 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
 @app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
 @app.route('/tv_shows/actor=', methods=['GET'])
-def get_tv_shows_by_actor(actor_name=None, page=1):
+def get_tv_shows_by_actor(actor_name=None, search_all=False, page=1):
     try:
         tv_shows = list()
         actor_name = Actor.query.filter_by(full_name=actor_name).first()
@@ -621,9 +583,14 @@ def get_tv_shows_by_actor(actor_name=None, page=1):
                 tv_shows_id.append(tar.tv_show_id)
             for id in tv_shows_id:
                 tv_shows.append(TVShows.query.filter_by(id=id).first())
-        return paginated_json('tv_shows', tv_shows, page)
+        if search_all:
+            return tv_shows
+
+        else:
+            return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
+
 
 
 # Return a list of tv_shows that match query in any column
@@ -656,6 +623,12 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
         tv_shows_year = get_tv_shows_by_year(query, True)
         if len(tv_shows_year) != 0:
             for tv_show in tv_shows_year:
+                tv_shows.append(tv_show)
+
+        # tv-show actor_full_name = query
+        tv_shows_actors = get_tv_shows_by_actor(query, True)
+        if len(tv_shows_actors) != 0:
+            for tv_show in tv_shows_actors:
                 tv_shows.append(tv_show)
 
         i = 0
