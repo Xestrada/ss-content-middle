@@ -24,7 +24,7 @@ port = int(os.environ.get('PORT', 33507))
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
 from media_models import Movie, MovieGenre, MovieInfo
-from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
+from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowSeasonInfo, TVShowInfo
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -99,7 +99,7 @@ def get_media_info(title=None):
         if check is not None:
             result = get_tv_show_info(title)
             if result is not None:
-                return jsonify({title: [tv_info.serialize() for tv_info in result]})
+                return jsonify({title: result.serialize()})
 
         # Check if title is in Movie Table
         check = Movie.query.filter_by(title=title).first()
@@ -522,7 +522,7 @@ def get_tv_show_info(title=None):
                 for ep in season_episodes:
                     episodes.append(ep)
 
-                entry = TVShowInfo(season_id, episodes)
+                entry = TVShowSeasonInfo(season_id, episodes)
                 tv_info.append(entry)
 
         # Display Every Season
@@ -805,7 +805,7 @@ def get_movie_info(title):
 # Individual TV Show Info
 def get_tv_show_info(title):
     try:
-        tv_info = list()
+        tv_season_info = list()
 
         tv_show = TVShows.query.filter_by(title=title).first()
         tv_show_id = tv_show.id
@@ -825,11 +825,12 @@ def get_tv_show_info(title):
                 for ep in season_episodes:
                     episodes.append(ep)
 
-                entry = TVShowInfo(season_id, episodes)
-                tv_info.append(entry)
+                entry = TVShowSeasonInfo(season_id, episodes)
+                tv_season_info.append(entry)
 
-            # Display Every Season
-            return tv_info
+            # Convert to TV Show Info
+            tv_show_info = TVShowInfo(title, tv_season_info)
+            return tv_show_info
         else:
             return None
     except Exception as e:
