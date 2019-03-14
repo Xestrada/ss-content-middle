@@ -175,6 +175,35 @@ def get_movies():
         return str(e)
 
 
+# post to movies database CHANGE THE ROUTE IF NECESSARY
+@app.route('/movies', methods=['POST'])
+def post_movie():
+    data = request.get_json()
+    title = str(data['title'])
+    year = str(data['year'])
+    service = str(data['service'])
+    tag = str(data['tag'])
+    url = str(data['url'])
+    date_added = str(date.today())
+    image_url = str(data['image_url'])
+
+    try:
+        movie = Movie(
+            title=title,
+            year=year,
+            service=service,
+            tag=tag,
+            url=url,
+            date_added=date_added,
+            image_url=image_url
+        )
+        db.session.add(movie)
+        db.session.commit()
+        return "Movie Added"
+    except Exception as e:
+        return str(e)
+
+
 # [url]/movies/title=[title]/info
 @app.route('/movies/title=<title>/info', methods=['GET'])
 def get_movie_info(title=None):
@@ -407,6 +436,39 @@ def get_tv_shows():
     try:
         tv_shows = TVShows.query.all()
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+# post to tv_shows database CHANGE THE ROUTE IF NECESSARY
+@app.route('/tv_shows', methods=['POST'])
+def post_tv_shows():
+    data = request.get_json()
+    title = str(data['title'])
+    year = str(data['year'])
+    service = str(data['service'])
+    tag = str(data['tag'])
+    url = str(data['url'])
+    num_episodes = int(data['num_episodes'])
+    num_seasons = int(data['num_seasons'])
+    date_added = str(date.today())
+    image_url = str(data['image_url'])
+
+    try:
+        tv_show = TVShows(
+            title=title,
+            year=year,
+            service=service,
+            tag=tag,
+            url=url,
+            num_episodes=num_episodes,
+            num_seasons=num_seasons,
+            date_added=date_added,
+            image_url=image_url
+        )
+        db.session.add(tv_show)
+        db.session.commit()
+        return "TV Show Added"
     except Exception as e:
         return str(e)
 
