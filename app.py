@@ -829,7 +829,9 @@ def get_tv_show_info(title):
                 tv_season_info.append(entry)
 
             # Convert to TV Show Info
-            tv_show_info = TVShowInfo(title, tv_season_info)
+            title = tv_show.title
+            description = tv_show.description
+            tv_show_info = TVShowInfo(title, description, tv_season_info)
             return tv_show_info
         else:
             return None

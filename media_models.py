@@ -103,8 +103,9 @@ class TVShows(db.Model):
     url = db.Column(db.VARCHAR)
     date_added = db.Column(db.Date)
     image_url = db.Column(db.VARCHAR)
+    description = db.Column(db.TEXT)
 
-    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url):
+    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url, description):
         self.title = title
         self.year = year
         self.num_seasons = num_seasons
@@ -114,6 +115,7 @@ class TVShows(db.Model):
         self.url = url
         self.date_added = date_added
         self.image_url = image_url
+        self.description = description
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -184,18 +186,20 @@ class TVShowEpisodes(db.Model):
 
     def serialize(self):
         return {
-        'episode': self.episode,
-        'episode_name': self.episode_name,
+            'episode': self.episode,
+            'episode_name': self.episode_name,
         }
 
 
 class TVShowInfo:
-    def __init__(self, title, season_info):
+    def __init__(self, title, description, season_info):
         self.title = title
+        self.description = description
         self.season_info = season_info
 
     def serialize(self):
         return {
             'title': self.title,
+            'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
         }
