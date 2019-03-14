@@ -312,12 +312,15 @@ def get_movies_by_year(year=None, search_all=False, page=1):
         if year is not None and int(year) > 0:
             movies = Movie.query.filter_by(year=year)
 
-        # return list for search all route
-        if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
-            return movie_list
+
+            # return list for search all route
+            if search_all:
+                return movie_list
+            else:
+                return paginated_json('movies', movie_list, page)
 
         # return json of queried movies
         else:
