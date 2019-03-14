@@ -75,14 +75,18 @@ class MovieGenre(db.Model):
 
 
 class MovieInfo:
-    def __init__(self, title, description):
+    def __init__(self, title, year, description, image_url):
         self.title = title
+        self.year = year
         self.description = description
+        self.image_url = image_url
 
     def serialize(self):
         return {
             'title': self.title,
+            'year': self.year,
             'description': self.description,
+            'image_url': self.image_url,
         }
 
 

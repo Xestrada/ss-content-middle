@@ -791,8 +791,10 @@ def get_movie_info(title):
 
         if movie is not None:
             title = movie.title
+            year = movie.year
             description = movie.description
-            movie_info = MovieInfo(title, description)
+            image_url = movie.image_url
+            movie_info = MovieInfo(title, year, description, image_url)
             return movie_info
 
         return None
