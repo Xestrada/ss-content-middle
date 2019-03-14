@@ -211,6 +211,15 @@ def post_movie():
     url = str(data['url'])
     date_added = str(date.today())
     image_url = str(data['image_url'])
+    genre_type = str(data['genre_type'])
+
+    # parse genre_type
+    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
+    genre_ids = list()
+
+    # get list of all genres_ids
+    for genre in genre_str_list:
+        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
 
     try:
         movie = Movie(
@@ -220,13 +229,23 @@ def post_movie():
             tag=tag,
             url=url,
             date_added=date_added,
-            image_url=image_url
+            image_url=image_url,
+
         )
         db.session.add(movie)
+        movie_id = Movie.query.filter_by(title=title).first().id
+
+        for genre_id in genre_ids:
+            movie_genre = MovieGenre(
+                movie_id = movie_id,
+                genre_id = genre_id
+            )
+            db.session.add(movie_genre)
         db.session.commit()
         return "Movie Added"
     except Exception as e:
         return str(e)
+
 
 
 # [url]/movies/title=[title]/info
