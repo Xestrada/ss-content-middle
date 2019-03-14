@@ -24,7 +24,7 @@ port = int(os.environ.get('PORT', 33507))
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
 from media_models import Movie, MovieGenre
-from media_models import TVShows, TVShowGenre
+from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -135,7 +135,7 @@ def get_actors_by_first_name(first_name=None, search_all=False,page=1):
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page = 1):
+def get_actors_by_last_name(last_name=None, page=1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
@@ -175,6 +175,20 @@ def get_movies():
         return str(e)
 
 
+# [url]/movies/title=[title]/info
+@app.route('/movies/title=<title>/info', methods=['GET'])
+def get_movie_info(title=None):
+    try:
+        if title is not None:
+            movie = Movie.query.filter_by(title=title).first()
+
+            if movie is not None:
+                return jsonify({title: movie.serialize()})
+        return None
+    except Exception as e:
+        return str(e)
+
+
 # [url/movies/recently_added
 @app.route('/movies/recently_added/page=<int:page>', methods=['GET'])
 @app.route('/movies/recently_added', methods=['GET'])
@@ -190,8 +204,6 @@ def get_movies_recent(page=1):
 
             if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(movie)
-
-        results = pseudo_paginate(page, results)
 
         return paginated_json('movies', results, page)
     except Exception as e:
@@ -298,12 +310,15 @@ def get_movies_by_year(year=None, search_all=False, page=1):
         if year is not None and int(year) > 0:
             movies = Movie.query.filter_by(year=year)
 
-        # return list for search all route
-        if search_all:
             movie_list = list()
             for movie in movies:
                 movie_list.append(movie)
-            return movie_list
+
+            # return list for search all route
+            if search_all:
+                return movie_list
+            else:
+                return paginated_json('movies', movie_list, page)
 
         # return json of queried movies
         else:
@@ -392,6 +407,39 @@ def get_tv_shows():
     try:
         tv_shows = TVShows.query.all()
         return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
+    except Exception as e:
+        return str(e)
+
+
+# [url]/tv_shows/title=[title]/info
+@app.route('/tv_shows/title=<title>/info', methods=['GET'])
+def get_tv_show_info(title=None):
+    try:
+        tv_info = list()
+
+        tv_show = TVShows.query.filter_by(title=title).first()
+        tv_show_id = tv_show.id
+        if tv_show_id is not None:
+            # Get List of all entries
+            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
+
+            # For each season
+            for tss in tv_show_seasons:
+
+                # Get all episodes in the season
+                season_id = tss.season
+                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
+
+                episodes = list()
+                # For each episode
+                for ep in season_episodes:
+                    episodes.append(ep)
+
+                entry = TVShowInfo(season_id, episodes)
+                tv_info.append(entry)
+
+        # Display Every Season
+        return jsonify({title: [tvi.serialize() for tvi in tv_info]})
     except Exception as e:
         return str(e)
 
@@ -590,7 +638,6 @@ def get_tv_shows_by_actor(actor_name=None, search_all=False, page=1):
             return paginated_json('tv_shows', tv_shows, page)
     except Exception as e:
         return str(e)
-
 
 
 # Return a list of tv_shows that match query in any column
