@@ -831,7 +831,8 @@ def get_tv_show_info(title):
             # Convert to TV Show Info
             title = tv_show.title
             description = tv_show.description
-            tv_show_info = TVShowInfo(title, description, tv_season_info)
+            image_url = tv_show.image_url
+            tv_show_info = TVShowInfo(title, description, tv_season_info, image_url)
             return tv_show_info
         else:
             return None

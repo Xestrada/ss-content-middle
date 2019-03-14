@@ -192,14 +192,16 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, title, description, season_info):
+    def __init__(self, title, description, season_info, image_url):
         self.title = title
         self.description = description
         self.season_info = season_info
+        self.image_url = image_url
 
     def serialize(self):
         return {
             'title': self.title,
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
+            'image_url': self.image_url,
         }
