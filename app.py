@@ -23,7 +23,7 @@ port = int(os.environ.get('PORT', 33507))
 # Import models
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
-from media_models import Movie, MovieGenre
+from media_models import Movie, MovieGenre, MovieInfo
 from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
 
 # Force pymysql to be used as replacement for MySQLdb
@@ -790,7 +790,10 @@ def get_movie_info(title):
         movie = Movie.query.filter_by(title=title).first()
 
         if movie is not None:
-            return movie
+            title = movie.title
+            description = movie.description
+            movie_info = MovieInfo(title, description)
+            return movie_info
 
         return None
     except Exception as e:
