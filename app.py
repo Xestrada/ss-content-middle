@@ -212,6 +212,7 @@ def post_movie():
     date_added = str(date.today())
     image_url = str(data['image_url'])
     genre_type = str(data['genre_type'])
+    description = str(data['description'])
 
     # parse genre_type
     genre_str_list = [genre.strip() for genre in genre_type.split(',')]
@@ -230,7 +231,7 @@ def post_movie():
             url=url,
             date_added=date_added,
             image_url=image_url,
-
+            description=description
         )
         db.session.add(movie)
         movie_id = Movie.query.filter_by(title=title).first().id
