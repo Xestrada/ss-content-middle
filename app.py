@@ -89,6 +89,31 @@ def get_all_results(query=None, page=1):
         return str(e)
 
 
+# Individual Media Info Route
+@app.route('/title=<title>/info', methods=['GET'])
+def get_media_info(title=None):
+    try:
+        # Check if title is in TV Show Table
+        check = TVShows.query.filter_by(title=title).first()
+
+        if check is not None:
+            result = get_tv_show_info(title)
+            if result is not None:
+                return jsonify({title: [tv_info.serialize() for tv_info in result]})
+
+        # Check if title is in Movie Table
+        check = Movie.query.filter_by(title=title).first()
+        if check is not None:
+            # Check if title is in Movie Table
+            result = get_movie_info(title)
+            if result is not None:
+                return jsonify({title: result.serialize()})
+
+        return list()
+    except Exception as e:
+        return str(e)
+
+
 # [url]/actors
 # [url]/actors/page=[page_number]
 @app.route('/actors/page=<int:page>', methods=['GET'])
@@ -755,6 +780,53 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
             return tv_shows
         else:
             return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
+
+
+# Individual Movie Info
+def get_movie_info(title):
+    try:
+        movie = Movie.query.filter_by(title=title).first()
+
+        if movie is not None:
+            return movie
+
+        return None
+    except Exception as e:
+        return str(e)
+
+
+# Individual TV Show Info
+def get_tv_show_info(title):
+    try:
+        tv_info = list()
+
+        tv_show = TVShows.query.filter_by(title=title).first()
+        tv_show_id = tv_show.id
+        if tv_show_id is not None:
+            # Get List of all entries
+            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
+
+            # For each season
+            for tss in tv_show_seasons:
+
+                # Get all episodes in the season
+                season_id = tss.season
+                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
+
+                episodes = list()
+                # For each episode
+                for ep in season_episodes:
+                    episodes.append(ep)
+
+                entry = TVShowInfo(season_id, episodes)
+                tv_info.append(entry)
+
+            # Display Every Season
+            return tv_info
+        else:
+            return None
     except Exception as e:
         return str(e)
 
