@@ -205,8 +205,6 @@ def get_movies_recent(page=1):
             if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
                 results.append(movie)
 
-        results = pseudo_paginate(page, results)
-
         return paginated_json('movies', results, page)
     except Exception as e:
         return str(e)
