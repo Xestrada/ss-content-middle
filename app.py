@@ -248,7 +248,6 @@ def post_movie():
         return str(e)
 
 
-
 # [url]/movies/title=[title]/info
 @app.route('/movies/title=<title>/info', methods=['GET'])
 def get_movie_info(title=None):
@@ -498,6 +497,16 @@ def post_tv_shows():
     num_seasons = int(data['num_seasons'])
     date_added = str(date.today())
     image_url = str(data['image_url'])
+    genre_type = str(data['genre_type'])
+    description = str(data['description'])
+
+    # parse genre_type
+    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
+    genre_ids = list()
+
+    # get list of all genres_ids
+    for genre in genre_str_list:
+        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
 
     try:
         tv_show = TVShows(
@@ -509,9 +518,19 @@ def post_tv_shows():
             num_episodes=num_episodes,
             num_seasons=num_seasons,
             date_added=date_added,
-            image_url=image_url
+            image_url=image_url,
+            description=description
         )
         db.session.add(tv_show)
+
+        tv_show_id = TVShows.query.filter_by(title=title).first().id
+
+        for genre_id in genre_ids:
+            tv_show_genre = TVShowGenre(
+                tv_show_id=tv_show_id,
+                genre_id=genre_id
+            )
+            db.session.add(tv_show_genre)
         db.session.commit()
         return "TV Show Added"
     except Exception as e:
