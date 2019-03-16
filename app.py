@@ -149,6 +149,11 @@ def get_actors_by_first_name(first_name=None, search_all=False,page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
+        if search_all:
+            actors_list = list()
+            for actor in actors_first_name:
+                actors_list.append(actor)
+            return actors_list
 
         return paginated_json('actors', actors_first_name, page)
     except Exception as e:
@@ -160,35 +165,83 @@ def get_actors_by_first_name(first_name=None, search_all=False,page=1):
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page=1):
+def get_actors_by_last_name(last_name=None, search_all=False, page=1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
+        if search_all:
+            actors_list = list()
+            for actor in actors_last_name:
+                actors_list.append(actor)
+            return actors_list
+
         return paginated_json('actors', actors_last_name, page)
     except Exception as e:
         return str(e)
 
 
 # also serves as the actors search all function
-# [url]/actors/all=[query]/page=[page_number]
-# [url]/actors/all=[query]
 # [url]/actors/full=[full_name]/page=[page_number]
 # [url]/actors/full=[full_name]
-@app.route('/actors/all=<full_name>/page=<int:page>', methods=['GET'])
-@app.route('/actors/all=<full_name>', methods=['GET'])
-@app.route('/actors/all=', methods=['GET'])
 @app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None, search_all=False, page=1):
     try:
-        query_name = "%{}%".format(full_name)
+        query_name = "{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
+        if search_all:
+            actors_full_name_list = list()
+            for actor in actors_full_name:
+                actors_full_name_list.append(actor)
+            return actors_full_name_list
         return paginated_json('actors', actors_full_name, page)
     except Exception as e:
         return str(e)
 
 
+# Return a list of tv_shows that match query in any column
+# [url]/actors/all=[query]/page=[page_number]
+# [url]/actors/all=[query]
+@app.route('/actors/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/actors/all=<query>', methods=['GET'])
+@app.route('/actors/all=', methods=['GET'])
+def get_actor_search_all(query=None, search_all=False, page=1):
+    actors = list()
+    if query is not None:
+        actors_by_first_name = get_actors_by_first_name(query, True)
+        if len(actors_by_first_name) != 0:
+            for actor in actors_by_first_name:
+                actors.append(actor)
+
+        actors_by_last_name = get_actors_by_last_name(query, True)
+        if len(actors_by_last_name) != 0:
+            for actor in actors_by_last_name:
+                actors.append(actor)
+
+        actors_by_full_name = get_actors_by_full_name(query, True)
+        if len(actors_by_full_name) != 0:
+            for actor in actors_by_full_name:
+                actors.append(actor)
+
+        i = 0
+        while i < len(actors):
+            if isinstance(actors[i], str):
+                actors.remove(actors[i])
+                i -= 1
+            i += 1
+
+        # Ensure no duplicates and sorted
+        actors = list(set(actors))
+        actors = sorted(actors, key=lambda actor: actor.id)
+
+    if search_all:
+        return actors
+    else:
+        return paginated_json('actors', actors, page)
+
+
+    actors_by_full_name = get_actors_by_full_name(query, True)
 # Query All Movies in Database
 # [url]/movies
 @app.route('/movies', methods=['GET'])
