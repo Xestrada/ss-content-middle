@@ -23,8 +23,8 @@ port = int(os.environ.get('PORT', 33507))
 # Import models
 from models import Actor, ActorMovie, ActorsTVShow
 from media_models import Genre
-from media_models import Movie, MovieGenre
-from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowInfo
+from media_models import Movie, MovieGenre, MovieInfo
+from media_models import TVShows, TVShowGenre, TVShowSeasons, TVShowEpisodes, TVShowSeasonInfo, TVShowInfo
 
 # Force pymysql to be used as replacement for MySQLdb
 pymysql.install_as_MySQLdb()
@@ -89,6 +89,31 @@ def get_all_results(query=None, page=1):
         return str(e)
 
 
+# Individual Media Info Route
+@app.route('/title=<title>/info', methods=['GET'])
+def get_media_info(title=None):
+    try:
+        # Check if title is in TV Show Table
+        check = TVShows.query.filter_by(title=title).first()
+
+        if check is not None:
+            result = get_tv_show_info(title)
+            if result is not None:
+                return jsonify({title: result.serialize()})
+
+        # Check if title is in Movie Table
+        check = Movie.query.filter_by(title=title).first()
+        if check is not None:
+            # Check if title is in Movie Table
+            result = get_movie_info(title)
+            if result is not None:
+                return jsonify({title: result.serialize()})
+
+        return list()
+    except Exception as e:
+        return str(e)
+
+
 # [url]/actors
 # [url]/actors/page=[page_number]
 @app.route('/actors/page=<int:page>', methods=['GET'])
@@ -124,6 +149,11 @@ def get_actors_by_first_name(first_name=None, search_all=False,page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
+        if search_all:
+            actors_list = list()
+            for actor in actors_first_name:
+                actors_list.append(actor)
+            return actors_list
 
         return paginated_json('actors', actors_first_name, page)
     except Exception as e:
@@ -135,35 +165,83 @@ def get_actors_by_first_name(first_name=None, search_all=False,page=1):
 @app.route('/actors/ln=<last_name>/page=<int:page>')
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
-def get_actors_by_last_name(last_name=None, page=1):
+def get_actors_by_last_name(last_name=None, search_all=False, page=1):
     try:
         query_name = "{}%".format(last_name)
         actors_last_name = Actor.query.filter(Actor.last_name.like(query_name)).all()
+        if search_all:
+            actors_list = list()
+            for actor in actors_last_name:
+                actors_list.append(actor)
+            return actors_list
+
         return paginated_json('actors', actors_last_name, page)
     except Exception as e:
         return str(e)
 
 
 # also serves as the actors search all function
-# [url]/actors/all=[query]/page=[page_number]
-# [url]/actors/all=[query]
 # [url]/actors/full=[full_name]/page=[page_number]
 # [url]/actors/full=[full_name]
-@app.route('/actors/all=<full_name>/page=<int:page>', methods=['GET'])
-@app.route('/actors/all=<full_name>', methods=['GET'])
-@app.route('/actors/all=', methods=['GET'])
 @app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None, search_all=False, page=1):
     try:
-        query_name = "%{}%".format(full_name)
+        query_name = "{}%".format(full_name)
         actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
+        if search_all:
+            actors_full_name_list = list()
+            for actor in actors_full_name:
+                actors_full_name_list.append(actor)
+            return actors_full_name_list
         return paginated_json('actors', actors_full_name, page)
     except Exception as e:
         return str(e)
 
 
+# Return a list of tv_shows that match query in any column
+# [url]/actors/all=[query]/page=[page_number]
+# [url]/actors/all=[query]
+@app.route('/actors/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/actors/all=<query>', methods=['GET'])
+@app.route('/actors/all=', methods=['GET'])
+def get_actor_search_all(query=None, search_all=False, page=1):
+    actors = list()
+    if query is not None:
+        actors_by_first_name = get_actors_by_first_name(query, True)
+        if len(actors_by_first_name) != 0:
+            for actor in actors_by_first_name:
+                actors.append(actor)
+
+        actors_by_last_name = get_actors_by_last_name(query, True)
+        if len(actors_by_last_name) != 0:
+            for actor in actors_by_last_name:
+                actors.append(actor)
+
+        actors_by_full_name = get_actors_by_full_name(query, True)
+        if len(actors_by_full_name) != 0:
+            for actor in actors_by_full_name:
+                actors.append(actor)
+
+        i = 0
+        while i < len(actors):
+            if isinstance(actors[i], str):
+                actors.remove(actors[i])
+                i -= 1
+            i += 1
+
+        # Ensure no duplicates and sorted
+        actors = list(set(actors))
+        actors = sorted(actors, key=lambda actor: actor.id)
+
+    if search_all:
+        return actors
+    else:
+        return paginated_json('actors', actors, page)
+
+
+    actors_by_full_name = get_actors_by_full_name(query, True)
 # Query All Movies in Database
 # [url]/movies
 @app.route('/movies', methods=['GET'])
@@ -171,6 +249,54 @@ def get_movies():
     try:
         movies = Movie.query.all()
         return jsonify({'movies': [movie.serialize() for movie in movies]})
+    except Exception as e:
+        return str(e)
+
+
+# post to movies database CHANGE THE ROUTE IF NECESSARY
+@app.route('/movies', methods=['POST'])
+def post_movie():
+    data = request.get_json()
+    title = str(data['title'])
+    year = str(data['year'])
+    service = str(data['service'])
+    tag = str(data['tag'])
+    url = str(data['url'])
+    date_added = str(date.today())
+    image_url = str(data['image_url'])
+    genre_type = str(data['genre_type'])
+    description = str(data['description'])
+
+    # parse genre_type
+    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
+    genre_ids = list()
+
+    # get list of all genres_ids
+    for genre in genre_str_list:
+        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
+
+    try:
+        movie = Movie(
+            title=title,
+            year=year,
+            service=service,
+            tag=tag,
+            url=url,
+            date_added=date_added,
+            image_url=image_url,
+            description=description
+        )
+        db.session.add(movie)
+        movie_id = Movie.query.filter_by(title=title).first().id
+
+        for genre_id in genre_ids:
+            movie_genre = MovieGenre(
+                movie_id = movie_id,
+                genre_id = genre_id
+            )
+            db.session.add(movie_genre)
+        db.session.commit()
+        return "Movie Added"
     except Exception as e:
         return str(e)
 
@@ -411,6 +537,59 @@ def get_tv_shows():
         return str(e)
 
 
+# post to tv_shows database CHANGE THE ROUTE IF NECESSARY
+@app.route('/tv_shows', methods=['POST'])
+def post_tv_shows():
+    data = request.get_json()
+    title = str(data['title'])
+    year = str(data['year'])
+    service = str(data['service'])
+    tag = str(data['tag'])
+    url = str(data['url'])
+    num_episodes = int(data['num_episodes'])
+    num_seasons = int(data['num_seasons'])
+    date_added = str(date.today())
+    image_url = str(data['image_url'])
+    genre_type = str(data['genre_type'])
+    description = str(data['description'])
+
+    # parse genre_type
+    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
+    genre_ids = list()
+
+    # get list of all genres_ids
+    for genre in genre_str_list:
+        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
+
+    try:
+        tv_show = TVShows(
+            title=title,
+            year=year,
+            service=service,
+            tag=tag,
+            url=url,
+            num_episodes=num_episodes,
+            num_seasons=num_seasons,
+            date_added=date_added,
+            image_url=image_url,
+            description=description
+        )
+        db.session.add(tv_show)
+
+        tv_show_id = TVShows.query.filter_by(title=title).first().id
+
+        for genre_id in genre_ids:
+            tv_show_genre = TVShowGenre(
+                tv_show_id=tv_show_id,
+                genre_id=genre_id
+            )
+            db.session.add(tv_show_genre)
+        db.session.commit()
+        return "TV Show Added"
+    except Exception as e:
+        return str(e)
+
+
 # [url]/tv_shows/title=[title]/info
 @app.route('/tv_shows/title=<title>/info', methods=['GET'])
 def get_tv_show_info(title=None):
@@ -435,7 +614,7 @@ def get_tv_show_info(title=None):
                 for ep in season_episodes:
                     episodes.append(ep)
 
-                entry = TVShowInfo(season_id, episodes)
+                entry = TVShowSeasonInfo(season_id, episodes)
                 tv_info.append(entry)
 
         # Display Every Season
@@ -693,6 +872,62 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
             return tv_shows
         else:
             return paginated_json('tv_shows', tv_shows, page)
+    except Exception as e:
+        return str(e)
+
+
+# Individual Movie Info
+def get_movie_info(title):
+    try:
+        movie = Movie.query.filter_by(title=title).first()
+
+        if movie is not None:
+            title = movie.title
+            year = movie.year
+            description = movie.description
+            image_url = movie.image_url
+            movie_info = MovieInfo(title, year, description, image_url)
+            return movie_info
+
+        return None
+    except Exception as e:
+        return str(e)
+
+
+# Individual TV Show Info
+def get_tv_show_info(title):
+    try:
+        tv_season_info = list()
+
+        tv_show = TVShows.query.filter_by(title=title).first()
+        tv_show_id = tv_show.id
+        if tv_show_id is not None:
+            # Get List of all entries
+            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
+
+            # For each season
+            for tss in tv_show_seasons:
+
+                # Get all episodes in the season
+                season_id = tss.season
+                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
+
+                episodes = list()
+                # For each episode
+                for ep in season_episodes:
+                    episodes.append(ep)
+
+                entry = TVShowSeasonInfo(season_id, episodes)
+                tv_season_info.append(entry)
+
+            # Convert to TV Show Info
+            title = tv_show.title
+            description = tv_show.description
+            image_url = tv_show.image_url
+            tv_show_info = TVShowInfo(title, description, tv_season_info, image_url)
+            return tv_show_info
+        else:
+            return None
     except Exception as e:
         return str(e)
 
