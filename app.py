@@ -241,7 +241,6 @@ def get_actor_search_all(query=None, search_all=False, page=1):
         return paginated_json('actors', actors, page)
 
 
-    actors_by_full_name = get_actors_by_full_name(query, True)
 # Query All Movies in Database
 # [url]/movies
 @app.route('/movies', methods=['GET'])
