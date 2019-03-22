@@ -217,5 +217,6 @@ class TVShowInfo:
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
             'stars': self.stars,
-            'image_url': self.image_url
+            'image_url': self.image_url,
+            'avg_rating': self.avg_rating
         }
