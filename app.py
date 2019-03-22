@@ -145,7 +145,7 @@ def get_actors_by_page(page=1):
 @app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
-def get_actors_by_first_name(first_name=None, search_all=False,page=1):
+def get_actors_by_first_name(first_name=None, search_all=False, page=1):
     try:
         query_name = "{}%".format(first_name)
         actors_first_name = Actor.query.filter(Actor.first_name.like(query_name)).all()
@@ -241,7 +241,6 @@ def get_actor_search_all(query=None, search_all=False, page=1):
         return paginated_json('actors', actors, page)
 
 
-    actors_by_full_name = get_actors_by_full_name(query, True)
 # Query All Movies in Database
 # [url]/movies
 @app.route('/movies', methods=['GET'])
@@ -291,8 +290,8 @@ def post_movie():
 
         for genre_id in genre_ids:
             movie_genre = MovieGenre(
-                movie_id = movie_id,
-                genre_id = genre_id
+                movie_id=movie_id,
+                genre_id=genre_id
             )
             db.session.add(movie_genre)
         db.session.commit()
@@ -886,7 +885,8 @@ def get_movie_info(title):
             year = movie.year
             description = movie.description
             image_url = movie.image_url
-            movie_info = MovieInfo(title, year, description, image_url)
+            avg_rating = movie.avg_rating
+            movie_info = MovieInfo(title, year, description, image_url, avg_rating)
             return movie_info
 
         return None
@@ -937,7 +937,8 @@ def get_tv_show_info(title):
             year = tv_show.year
             description = tv_show.description
             image_url = tv_show.image_url
-            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, image_url)
+            avg_rating = tv_show.avg_rating
+            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, image_url, avg_rating)
             return tv_show_info
         else:
             return None
