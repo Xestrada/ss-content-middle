@@ -901,6 +901,7 @@ def get_tv_show_info(title):
 
         tv_show = TVShows.query.filter_by(title=title).first()
         tv_show_id = tv_show.id
+        tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id = tv_show_id).all()
         if tv_show_id is not None:
             # Get List of all entries
             tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
@@ -920,11 +921,23 @@ def get_tv_show_info(title):
                 entry = TVShowSeasonInfo(season_id, episodes)
                 tv_season_info.append(entry)
 
+            # Get list of all stars in tv show
+            stars = list()
+            if tv_show_actors is None:
+                stars = None
+            else:
+                # For each actor
+                for tsa in tv_show_actors:
+                    actor = Actor.query.filter_by(id = tsa.actors_id).first()
+                    stars.append(actor.full_name)
+
+
             # Convert to TV Show Info
             title = tv_show.title
+            year = tv_show.year
             description = tv_show.description
             image_url = tv_show.image_url
-            tv_show_info = TVShowInfo(title, description, tv_season_info, image_url)
+            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, image_url)
             return tv_show_info
         else:
             return None
