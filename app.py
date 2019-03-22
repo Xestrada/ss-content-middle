@@ -920,12 +920,24 @@ def get_tv_show_info(title):
                 entry = TVShowSeasonInfo(season_id, episodes)
                 tv_season_info.append(entry)
 
+            # Get list of all stars in tv show
+            stars = list()
+            if tv_show_actors is None:
+                stars = None
+            else:
+                # For each actor
+                for tsa in tv_show_actors:
+                    actor = Actor.query.filter_by(id = tsa.actors_id).first()
+                    stars.append(actor.full_name)
+
+
             # Convert to TV Show Info
             title = tv_show.title
+            year = tv_show.year
             description = tv_show.description
             image_url = tv_show.image_url
             avg_rating = tv_show.avg_rating
-            tv_show_info = TVShowInfo(title, description, tv_season_info, image_url, avg_rating)
+            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, image_url, avg_rating)
             return tv_show_info
         else:
             return None

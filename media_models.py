@@ -201,18 +201,21 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, title, description, season_info, image_url, avg_rating):
+    def __init__(self, title, year, description, season_info, stars, image_url, avg_rating):
         self.title = title
+        self.year = year
         self.description = description
         self.season_info = season_info
+        self.stars = stars
         self.image_url = image_url
         self.avg_rating = avg_rating
 
     def serialize(self):
         return {
             'title': self.title,
+            'year': self.year,
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
-            'image_url': self.image_url,
-            'avg_rating': self.avg_rating,
+            'stars': self.stars,
+            'image_url': self.image_url
         }
