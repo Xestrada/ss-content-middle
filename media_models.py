@@ -33,8 +33,9 @@ class Movie(db.Model):
     date_added = db.Column(db.Date)
     image_url = db.Column(db.VARCHAR)
     description = db.Column(db.TEXT)
+    avg_rating = db.Column(db.REAL)
 
-    def __init__(self, title, year, service, tag, url, date_added, image_url, description):
+    def __init__(self, title, year, service, tag, url, date_added, image_url, description, avg_rating):
         self.title = title
         self.year = year
         self.service = service
@@ -43,6 +44,7 @@ class Movie(db.Model):
         self.date_added = date_added
         self.image_url = image_url
         self.description = description
+        self.avg_rating = avg_rating
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -57,6 +59,7 @@ class Movie(db.Model):
             'url': self.url,
             'date_added': self.date_added,
             'image_url': self.image_url,
+            'avg_rating': self.avg_rating,
         }
 
 
@@ -75,11 +78,12 @@ class MovieGenre(db.Model):
 
 
 class MovieInfo:
-    def __init__(self, title, year, description, image_url):
+    def __init__(self, title, year, description, image_url, avg_rating):
         self.title = title
         self.year = year
         self.description = description
         self.image_url = image_url
+        self.avg_rating = avg_rating
 
     def serialize(self):
         return {
@@ -87,6 +91,7 @@ class MovieInfo:
             'year': self.year,
             'description': self.description,
             'image_url': self.image_url,
+            'avg_rating': self.avg_rating,
         }
 
 
@@ -104,8 +109,10 @@ class TVShows(db.Model):
     date_added = db.Column(db.Date)
     image_url = db.Column(db.VARCHAR)
     description = db.Column(db.TEXT)
+    avg_rating = db.Column(db.REAL)
 
-    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url, description):
+    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url, description,
+                 avg_rating):
         self.title = title
         self.year = year
         self.num_seasons = num_seasons
@@ -116,6 +123,7 @@ class TVShows(db.Model):
         self.date_added = date_added
         self.image_url = image_url
         self.description = description
+        self.avg_rating = avg_rating
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -132,6 +140,7 @@ class TVShows(db.Model):
             'url': self.url,
             'date_added': self.date_added,
             'image_url': self.image_url,
+            'avg_rating': self.avg_rating,
         }
 
 
@@ -192,11 +201,12 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, title, description, season_info, image_url):
+    def __init__(self, title, description, season_info, image_url, avg_rating):
         self.title = title
         self.description = description
         self.season_info = season_info
         self.image_url = image_url
+        self.avg_rating = avg_rating
 
     def serialize(self):
         return {
@@ -204,4 +214,5 @@ class TVShowInfo:
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
             'image_url': self.image_url,
+            'avg_rating': self.avg_rating,
         }
