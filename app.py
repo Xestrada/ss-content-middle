@@ -901,6 +901,7 @@ def get_tv_show_info(title):
 
         tv_show = TVShows.query.filter_by(title=title).first()
         tv_show_id = tv_show.id
+        tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id = tv_show_id).all()
         if tv_show_id is not None:
             # Get List of all entries
             tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)

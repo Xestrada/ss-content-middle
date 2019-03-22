@@ -1,6 +1,5 @@
 from app import db
 
-
 class Genre(db.Model):
     __tablename__ = 'genre'
 
@@ -209,6 +208,7 @@ class TVShowInfo:
         self.stars = stars
         self.image_url = image_url
         self.avg_rating = avg_rating
+
 
     def serialize(self):
         return {
