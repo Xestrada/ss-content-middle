@@ -902,6 +902,8 @@ def get_tv_show_info(title):
         tv_show = TVShows.query.filter_by(title=title).first()
         tv_show_id = tv_show.id
         tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id = tv_show_id).all()
+        tv_show_genre = TVShowGenre.query.filter_by(tv_show_id = tv_show_id).all()
+
         if tv_show_id is not None:
             # Get List of all entries
             tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
@@ -931,6 +933,15 @@ def get_tv_show_info(title):
                     actor = Actor.query.filter_by(id = tsa.actors_id).first()
                     stars.append(actor.full_name)
 
+            # Gets list of all genres in tv show
+            genres = list()
+            if tv_show_genre is None:
+                genres = None
+            else:
+                # For each genre
+                for tsg in tv_show_genre:
+                    genre = Genre.query.filter_by(id = tsg.genre_id).first()
+                    genres.append(genre.genre_type)
 
             # Convert to TV Show Info
             title = tv_show.title
@@ -938,7 +949,7 @@ def get_tv_show_info(title):
             description = tv_show.description
             image_url = tv_show.image_url
             avg_rating = tv_show.avg_rating
-            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, image_url, avg_rating)
+            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, genres, image_url, avg_rating)
             return tv_show_info
         else:
             return None

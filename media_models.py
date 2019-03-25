@@ -200,12 +200,13 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, title, year, description, season_info, stars, image_url, avg_rating):
+    def __init__(self, title, year, description, season_info, stars, genres, image_url, avg_rating):
         self.title = title
         self.year = year
         self.description = description
         self.season_info = season_info
         self.stars = stars
+        self.genres = genres
         self.image_url = image_url
         self.avg_rating = avg_rating
 
@@ -217,6 +218,7 @@ class TVShowInfo:
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
             'stars': self.stars,
+            'genres': self.genres,
             'image_url': self.image_url,
             'avg_rating': self.avg_rating
         }
