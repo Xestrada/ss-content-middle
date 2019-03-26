@@ -35,12 +35,11 @@ class Movie(db.Model):
     description = db.Column(db.TEXT)
     avg_rating = db.Column(db.REAL)
 
-    def __init__(self, title, year, service, tag, url, date_added, image_url, description, avg_rating):
+    def __init__(self, title, year, service, tag, date_added, image_url, description, avg_rating):
         self.title = title
         self.year = year
         self.service = service
         self.tag = tag
-        self.url = url
         self.date_added = date_added
         self.image_url = image_url
         self.description = description
@@ -78,11 +77,12 @@ class MovieGenre(db.Model):
 
 
 class MovieInfo:
-    def __init__(self, movie_id, title, year, description, stars, genres, image_url, avg_rating):
+    def __init__(self, movie_id, title, year, url, description, stars, genres, image_url, avg_rating):
         self.movie_id = movie_id
         self.title = title
         self.year = year
         self.description = description
+        self.url = url
         self.stars = stars
         self.genres = genres
         self.image_url = image_url
@@ -94,6 +94,7 @@ class MovieInfo:
             'title': self.title,
             'year': self.year,
             'description': self.description,
+            'url': self.url,
             'stars': self.stars,
             'genres': self.genres,
             'image_url': self.image_url,
@@ -195,6 +196,7 @@ class TVShowEpisodes(db.Model):
     season_id = db.Column(db.INTEGER, primary_key=True)
     episode = db.Column(db.INTEGER, primary_key=True)
     episode_name = db.Column(db.VARCHAR)
+    url = db.Column(db.VARCHAR)
 
     def __init__(self, episode_name):
         self.episode_name = episode_name
@@ -203,6 +205,7 @@ class TVShowEpisodes(db.Model):
         return {
             'episode': self.episode,
             'episode_name': self.episode_name,
+            'url': self.url,
         }
 
 

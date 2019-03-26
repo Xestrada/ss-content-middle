@@ -907,11 +907,12 @@ def get_movie_info(title):
             movie_id = movie.id
             title = movie.title
             year = movie.year
+            url = movie.url
             description = movie.description
             image_url = movie.image_url
             avg_rating = movie.avg_rating
 
-            movie_info = MovieInfo(movie_id, title, year, description, stars, genres, image_url, avg_rating)
+            movie_info = MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
             return movie_info
 
         return None
