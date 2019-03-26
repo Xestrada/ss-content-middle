@@ -78,7 +78,8 @@ class MovieGenre(db.Model):
 
 
 class MovieInfo:
-    def __init__(self, title, year, description, image_url, avg_rating):
+    def __init__(self, movie_id, title, year, description, image_url, avg_rating):
+        self.movie_id = movie_id
         self.title = title
         self.year = year
         self.description = description
@@ -87,6 +88,7 @@ class MovieInfo:
 
     def serialize(self):
         return {
+            'movie_id': self.movie_id,
             'title': self.title,
             'year': self.year,
             'description': self.description,
@@ -201,7 +203,8 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, title, description, season_info, image_url, avg_rating):
+    def __init__(self, tv_show_id, title, description, season_info, image_url, avg_rating):
+        self.tv_show_id = tv_show_id
         self.title = title
         self.description = description
         self.season_info = season_info
@@ -210,6 +213,7 @@ class TVShowInfo:
 
     def serialize(self):
         return {
+            'tv_show_id': self.tv_show_id,
             'title': self.title,
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
