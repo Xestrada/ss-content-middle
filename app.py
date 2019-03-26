@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from datetime import date, timedelta
-import pymysql
-import os
 import math
+import os
+from datetime import date, timedelta
+
+import pymysql
+from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
 # Setup App
 app = Flask(__name__)
@@ -925,8 +926,8 @@ def get_tv_show_info(title):
 
         tv_show = TVShows.query.filter_by(title=title).first()
         tv_show_id = tv_show.id
-        tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id = tv_show_id).all()
-        tv_show_genres = TVShowGenre.query.filter_by(tv_show_id = tv_show_id).all()
+        tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id=tv_show_id).all()
+        tv_show_genres = TVShowGenre.query.filter_by(tv_show_id=tv_show_id).all()
 
         if tv_show_id is not None:
             # Get List of all entries
@@ -954,7 +955,7 @@ def get_tv_show_info(title):
             else:
                 # For each actor
                 for tsa in tv_show_actors:
-                    actor = Actor.query.filter_by(id = tsa.actors_id).first()
+                    actor = Actor.query.filter_by(id=tsa.actors_id).first()
                     stars.append(actor.full_name)
 
             # Gets list of all genres in tv show
@@ -964,7 +965,7 @@ def get_tv_show_info(title):
             else:
                 # For each genre
                 for tsg in tv_show_genres:
-                    genre = Genre.query.filter_by(id = tsg.genre_id).first()
+                    genre = Genre.query.filter_by(id=tsg.genre_id).first()
                     genres.append(genre.genre_type)
 
             # Convert to TV Show Info
@@ -974,7 +975,8 @@ def get_tv_show_info(title):
             image_url = tv_show.image_url
             avg_rating = tv_show.avg_rating
 
-            tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url, avg_rating)
+            tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url,
+                                      avg_rating)
             return tv_show_info
         else:
             return None
