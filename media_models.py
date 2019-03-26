@@ -1,6 +1,5 @@
 from app import db
 
-
 class Genre(db.Model):
     __tablename__ = 'genre'
 
@@ -78,11 +77,14 @@ class MovieGenre(db.Model):
 
 
 class MovieInfo:
-    def __init__(self, movie_id, title, year, description, image_url, avg_rating):
+
+    def __init__(self, movie_id, title, year, description, stars, genres, image_url, avg_rating):
         self.movie_id = movie_id
         self.title = title
         self.year = year
         self.description = description
+        self.stars = stars
+        self.genres = genres
         self.image_url = image_url
         self.avg_rating = avg_rating
 
@@ -92,6 +94,8 @@ class MovieInfo:
             'title': self.title,
             'year': self.year,
             'description': self.description,
+            'stars': self.stars,
+            'genres': self.genres,
             'image_url': self.image_url,
             'avg_rating': self.avg_rating,
         }
@@ -203,11 +207,14 @@ class TVShowEpisodes(db.Model):
 
 
 class TVShowInfo:
-    def __init__(self, tv_show_id, title, description, season_info, image_url, avg_rating):
+    def __init__(self, tv_show_id, title, year, description, stars, genres, season_info, image_url, avg_rating):
         self.tv_show_id = tv_show_id
         self.title = title
+        self.year = year
         self.description = description
         self.season_info = season_info
+        self.stars = stars
+        self.genres = genres
         self.image_url = image_url
         self.avg_rating = avg_rating
 
@@ -215,8 +222,11 @@ class TVShowInfo:
         return {
             'tv_show_id': self.tv_show_id,
             'title': self.title,
+            'year': self.year,
             'description': self.description,
             'season_info': [season.serialize() for season in self.season_info],
+            'stars': self.stars,
+            'genres': self.genres,
             'image_url': self.image_url,
-            'avg_rating': self.avg_rating,
+            'avg_rating': self.avg_rating
         }
