@@ -975,7 +975,6 @@ def get_tv_show_info(title):
             avg_rating = tv_show.avg_rating
 
             tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url, avg_rating)
-
             return tv_show_info
         else:
             return None
