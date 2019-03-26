@@ -903,12 +903,14 @@ def get_movie_info(title):
                 genres.append(genre.genre_type)
 
         if movie is not None:
+            movie_id = movie.id
             title = movie.title
             year = movie.year
             description = movie.description
             image_url = movie.image_url
             avg_rating = movie.avg_rating
-            movie_info = MovieInfo(title, year, description, stars, genres, image_url, avg_rating)
+
+            movie_info = MovieInfo(movie_id, title, year, description, stars, genres, image_url, avg_rating)
             return movie_info
 
         return None
@@ -971,7 +973,8 @@ def get_tv_show_info(title):
             description = tv_show.description
             image_url = tv_show.image_url
             avg_rating = tv_show.avg_rating
-            tv_show_info = TVShowInfo(title, year, description, tv_season_info, stars, genres, image_url, avg_rating)
+
+            tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url, avg_rating)
             return tv_show_info
         else:
             return None
