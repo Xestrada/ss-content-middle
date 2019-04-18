@@ -54,18 +54,30 @@ class UnitTests(unittest.TestCase):
         url = '/post_movie'
 
         # Should Return
-        # 'valid_user': False
-        # 'valid_movie': False
-        # 'success': False
-        test_jsons = [{'user_id': None, 'movie_id': None, 'rating': 5},
-                      {'user_id': 0, 'movie_id': None, 'rating': 5},
-                      {'user_id': None, 'movie_id': 0, 'rating': 5},
-                      {'user_id': 0, 'movie_id': 0, 'rating': 5}
+        # "success": false,
+        # "valid image_url": false,
+        # "valid_description": true,
+        # "valid_genre_type": true,
+        # "valid_service": true,
+        # "valid_tag": true,
+        # "valid_title": false,
+        # "valid_url": false,
+        # "valid_year": true
+        test_jsons = [{"title":"", "year" :"", "service":"","tag" :"", "url":"", "image_url":"", "genre_type": "", "description": ""},
+                      {"title":"", "year" :"abc", "service":"","tag" :"", "url":"", "image_url":"", "genre_type": "", "description": ""},
+                      {"title":"", "year" :"201", "service":"","tag" :"", "url":"", "image_url":"", "genre_type": "", "description": ""},
+                      {"title":"", "year" :"", "service":"","tag" :"", "url":"", "image_url":"", "genre_type": "adven", "description": ""},
                       ]
 
         for test_json in test_jsons:
             result = self.app.post(url, json=test_json)
             expected = result.get_json()
-            self.assertEqual(expected['valid_user'], False)
-            self.assertEqual(expected['valid_movie'], False)
+            self.assertEqual(expected['valid image_url'], False)
+            self.assertEqual(expected['valid_description'], False)
+            self.assertEqual(expected['valid_genre_type'], False)
+            self.assertEqual(expected['valid_service'], False)
+            self.assertEqual(expected['valid_tag'], False)
+            self.assertEqual(expected['valid_title'], False)
+            self.assertEqual(expected['valid_url'], False)
+            self.assertEqual(expected['valid_year'], False)
             self.assertEqual(expected['success'], False)
