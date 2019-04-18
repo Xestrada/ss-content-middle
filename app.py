@@ -267,9 +267,60 @@ def post_movie():
     genre_type = str(data['genre_type'])
     description = str(data['description'])
 
+    success_check = True;
+    title_check = True;
+    year_check = True;
+    service_check = True;
+    tag_check = True;
+    url_check = True;
+    image_url_check = True;
+    genre_type_check = True;
+    description_check = True;
+
+
     # parse genre_type
     genre_str_list = [genre.strip() for genre in genre_type.split(',')]
     genre_ids = list()
+
+    for genre in genre_str_list:
+        if Genre.query.filter_by(genre_type=genre).scalar() is None:
+            success_check = False
+            genre_type_check = False
+
+    if title is "" or Movie.query.filter_by(title=title).scalar() is not None:
+        success_check = False
+        title_check = False
+    if len(year) is not 4 or type(year) != int:
+        success_check = False
+        year_check = False
+    if service is "":
+        success_check = False
+        service_check = False
+    if tag is "":
+        success_check = False
+        tag_check = False
+    if url is "" or Movie.query.filter_by(url=url).scalar() is not None:
+        success_check = False
+        url_check = False
+    if image_url is "" or Movie.query.filter_by(image_url=image_url).scalar() is not None:
+        success_check = False
+        image_url_check = False
+    if genre_type is "":
+        success_check = False
+        genre_type_check = False
+    if description is "":
+        success_check = False
+        description_check = False
+    if success_check is False:
+        return jsonify({'success':success_check,
+                        'valid_title':title_check,
+                        'valid_year':year_check,
+                        'valid_service':service_check,
+                        'valid_tag':tag_check,
+                        'valid_url':url_check,
+                        'valid image_url':image_url_check,
+                        'valid_genre_type':genre_type_check,
+                        'valid_description':description_check,})
 
     # get list of all genres_ids
     for genre in genre_str_list:
@@ -296,7 +347,15 @@ def post_movie():
             )
             db.session.add(movie_genre)
         db.session.commit()
-        return "Movie Added"
+        return jsonify({'success': success_check,
+                        'valid_title': title_check,
+                        'valid_year': year_check,
+                        'valid_service': service_check,
+                        'valid_tag': tag_check,
+                        'valid_url': url_check,
+                        'valid image_url': image_url_check,
+                        'valid_genre_type': genre_type_check,
+                        'valid_description': description_check, })
     except Exception as e:
         return str(e)
 
@@ -553,9 +612,69 @@ def post_tv_shows():
     genre_type = str(data['genre_type'])
     description = str(data['description'])
 
+    success_check = True;
+    title_check = True;
+    year_check = True;
+    service_check = True;
+    tag_check = True;
+    url_check = True;
+    num_episodes_check = True;
+    num_seasons_check = True;
+    image_url_check = True;
+    genre_type_check = True;
+    description_check = True;
+
     # parse genre_type
     genre_str_list = [genre.strip() for genre in genre_type.split(',')]
     genre_ids = list()
+
+    for genre in genre_str_list:
+        if Genre.query.filter_by(genre_type=genre).scalar() is None:
+            success_check = False
+            genre_type_check = False
+
+    if title is "" or TVShows.query.filter_by(title=title).scalar() is not None:
+        success_check = False
+        title_check = False
+    if len(year) is not 4 or type(year) != int:
+        success_check = False
+        year_check = False
+    if service is "":
+        success_check = False
+        service_check = False
+    if tag is "":
+        success_check = False
+        tag_check = False
+    if url is "" or TVShows.query.filter_by(url=url).scalar() is not None:
+        success_check = False
+        url_check = False
+    if num_episodes > 0:
+        success_check = False
+        num_episodes_check = False
+    if num_seasons > 0:
+        success_check = False
+        num_seasons_check = False
+    if image_url is "" or TVShows.query.filter_by(image_url=image_url).scalar() is not None:
+        success_check = False
+        image_url_check = False
+    if genre_type is "":
+        success_check = False
+        genre_type_check = False
+    if description is "":
+        success_check = False
+        description_check = False
+    if success_check is "":
+        return jsonify({'success': success_check,
+                        'valid_title': title_check,
+                        'valid_year': year_check,
+                        'valid_service': service_check,
+                        'valid_tag': tag_check,
+                        'valid_url': url_check,
+                        'valid_num_episodes': num_episodes_check,
+                        'valid_num_seasons': num_seasons_check,
+                        'valid image_url': image_url_check,
+                        'valid_genre_type': genre_type_check,
+                        'valid_description': description_check, })
 
     # get list of all genres_ids
     for genre in genre_str_list:
@@ -585,7 +704,17 @@ def post_tv_shows():
             )
             db.session.add(tv_show_genre)
         db.session.commit()
-        return "TV Show Added"
+        return jsonify({'success': success_check,
+                        'valid_title': title_check,
+                        'valid_year': year_check,
+                        'valid_service': service_check,
+                        'valid_tag': tag_check,
+                        'valid_url': url_check,
+                        'valid_num_episodes': num_episodes_check,
+                        'valid_num_seasons': num_seasons_check,
+                        'valid image_url': image_url_check,
+                        'valid_genre_type': genre_type_check,
+                        'valid_description': description_check, })
     except Exception as e:
         return str(e)
 
