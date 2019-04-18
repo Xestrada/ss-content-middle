@@ -35,15 +35,15 @@ class Movie(db.Model):
     description = db.Column(db.TEXT)
     avg_rating = db.Column(db.REAL)
 
-    def __init__(self, title, year, service, tag, date_added, image_url, description, avg_rating):
+    def __init__(self, title, year, service, tag, url, date_added, image_url, description):
         self.title = title
         self.year = year
         self.service = service
         self.tag = tag
+        self.url = url
         self.date_added = date_added
         self.image_url = image_url
         self.description = description
-        self.avg_rating = avg_rating
 
     def __repr__(self):
         return '<id {}>'.format(self.id)
@@ -118,8 +118,7 @@ class TVShows(db.Model):
     description = db.Column(db.TEXT)
     avg_rating = db.Column(db.REAL)
 
-    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url, description,
-                 avg_rating):
+    def __init__(self, title, year, num_seasons, num_episodes, service, tag, url, date_added, image_url, description):
         self.title = title
         self.year = year
         self.num_seasons = num_seasons
@@ -130,7 +129,6 @@ class TVShows(db.Model):
         self.date_added = date_added
         self.image_url = image_url
         self.description = description
-        self.avg_rating = avg_rating
 
     def __repr__(self):
         return '<id {}>'.format(self.id)

@@ -254,7 +254,7 @@ def get_movies():
 
 
 # post to movies database CHANGE THE ROUTE IF NECESSARY
-@app.route('/movies', methods=['POST'])
+@app.route('/post_movie', methods=['POST'])
 def post_movie():
     data = request.get_json()
     title = str(data['title'])
@@ -290,7 +290,7 @@ def post_movie():
     if title is "" or Movie.query.filter_by(title=title).scalar() is not None:
         success_check = False
         title_check = False
-    if len(year) is not 4 or type(year) != int:
+    if len(year) is not 4 or year.isdigit() is False:
         success_check = False
         year_check = False
     if service is "":
@@ -597,7 +597,7 @@ def get_tv_shows():
 
 
 # post to tv_shows database CHANGE THE ROUTE IF NECESSARY
-@app.route('/tv_shows', methods=['POST'])
+@app.route('/post_tv_show', methods=['POST'])
 def post_tv_shows():
     data = request.get_json()
     title = str(data['title'])
