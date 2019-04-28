@@ -85,3 +85,23 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/actors/ln={ln}'.format(ln=test_values[i]))
             expected = result.get_json()
             assert len(expected['actors']) >= 1
+
+    def test_get_actors_by_last_name(self):
+        # Should Return
+        # 'actors': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/actors/full={ln}'.format(ln=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['actors'], [])
+
+        # Should Return Successfully
+
+        test_values = ['tom', 'john', 'hanks', 'd']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/actors/ln={ln}'.format(ln=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['actors']) >= 1
