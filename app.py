@@ -156,17 +156,14 @@ def get_actors_by_last_name(last_name=None, search_all=False, page=1):
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None, search_all=False, page=1):
-    try:
-        query_name = "{}%".format(full_name)
-        actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
-        if search_all:
-            actors_full_name_list = list()
-            for actor in actors_full_name:
-                actors_full_name_list.append(actor)
-            return actors_full_name_list
-        return paginated_json('actors', actors_full_name, page)
-    except Exception as e:
-        return str(e)
+    query_name = "{}%".format(full_name)
+    actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
+    if search_all:
+        actors_full_name_list = list()
+        for actor in actors_full_name:
+            actors_full_name_list.append(actor)
+        return actors_full_name_list
+    return paginated_json('actors', actors_full_name, page)
 
 
 # Return a list of tv_shows that match query in any column
