@@ -156,7 +156,7 @@ def get_actors_by_last_name(last_name=None, search_all=False, page=1):
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None, search_all=False, page=1):
-    query_name = "{}%".format(full_name)
+    query_name = "%{}%".format(full_name)
     actors_full_name = Actor.query.filter(Actor.full_name.like(query_name)).all()
     if search_all:
         actors_full_name_list = list()
