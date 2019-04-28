@@ -86,22 +86,42 @@ class UnitTests(unittest.TestCase):
             expected = result.get_json()
             assert len(expected['actors']) >= 1
 
-    def test_get_actors_by_last_name(self):
+    def test_get_actors_by_full_name(self):
         # Should Return
         # 'actors': []
 
         test_values = [None, '', -1, 0]
 
         for i in range(len(test_values)):
-            result = self.app.get('/actors/full={ln}'.format(ln=test_values[i]))
+            result = self.app.get('/actors/full={full_name}'.format(full_name=test_values[i]))
             expected = result.get_json()
             self.assertEqual(expected['actors'], [])
 
         # Should Return Successfully
 
-        test_values = ['tom', 'john', 'hanks', 'd']
+        test_values = ['tom', 'john', 'hanks']
 
         for i in range(len(test_values)):
-            result = self.app.get('/actors/ln={ln}'.format(ln=test_values[i]))
+            result = self.app.get('/actors/full={full_name}'.format(full_name=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['actors']) >= 1
+
+    def test_get_actors_search_all(self):
+        # Should Return
+        # 'actors': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/actors/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['actors'], [])
+
+        # Should Return Successfully
+
+        test_values = ['tom', 'john', 'hanks', 'd', 't', 'sean penn']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/actors/all={query}'.format(query=test_values[i]))
             expected = result.get_json()
             assert len(expected['actors']) >= 1
