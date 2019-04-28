@@ -37,3 +37,11 @@ class UnitTests(unittest.TestCase):
 
         # assert the response data
         self.assertEqual(result.data, b'Home Page')
+
+    def test_get_actors_by_page(self):
+        # Should Return
+        # 'actors' is not None
+
+        result = self.app.get('/actors')
+        expected = result.get_json()
+        assert expected['actors'] is not None
