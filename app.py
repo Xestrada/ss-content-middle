@@ -211,11 +211,8 @@ def get_actor_search_all(query=None, search_all=False, page=1):
 # [url]/movies
 @app.route('/movies', methods=['GET'])
 def get_movies():
-    try:
-        movies = Movie.query.all()
-        return jsonify({'movies': [movie.serialize() for movie in movies]})
-    except Exception as e:
-        return str(e)
+    movies = Movie.query.all()
+    return jsonify({'movies': [movie.serialize() for movie in movies]})
 
 
 # post to movies database CHANGE THE ROUTE IF NECESSARY
@@ -326,16 +323,14 @@ def post_movie():
 
 # [url]/movies/title=[title]/info
 @app.route('/movies/title=<title>/info', methods=['GET'])
+@app.route('/movies/title=/info', methods=['GET'])
 def get_movie_info(title=None):
-    try:
-        if title is not None:
-            movie = Movie.query.filter_by(title=title).first()
+    if title is not None:
+        movie = Movie.query.filter_by(title=title).first()
 
-            if movie is not None:
-                return jsonify({title: movie.serialize()})
-        return None
-    except Exception as e:
-        return str(e)
+        if movie is not None:
+            return jsonify({title: movie.serialize()})
+    return jsonify({'title': None})
 
 
 # [url/movies/recently_added
