@@ -125,3 +125,31 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/actors/all={query}'.format(query=test_values[i]))
             expected = result.get_json()
             assert len(expected['actors']) >= 1
+
+    def test_get_movies(self):
+        # Should Return
+        # 'movies' is not None
+
+        result = self.app.get('/movies')
+        expected = result.get_json()
+        assert expected['movies'] is not None
+
+    def test_get_movie_info(self):
+        # Should Return
+        # 'title':  None
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/title={title}/info'.format(title=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['title'], None)
+
+        # Should Return
+        # 'title' is not None
+
+        test_values = ['Bird Box', 'Toy Story']
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/title={title}/info'.format(title=test_values[i]))
+            expected = result.get_json()
+            assert expected[test_values[i]] is not None
