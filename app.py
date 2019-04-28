@@ -67,30 +67,6 @@ def recently_added(page=1):
         return str(e)
 
 
-# Search All Route
-# [url]/all=[query]
-@app.route('/all=<query>/page=<int:page>', methods=['GET'])
-@app.route('/all=<query>', methods=['GET'])
-@app.route('/all=', methods=['GET'])
-def get_all_results(query=None, page=1):
-    try:
-        results = list()
-
-        # Append all movies in database with matching query
-        movies = get_movies_search_all(query, True)
-        for movie in movies:
-            results.append(movie)
-
-        # Append all tv-shows in database with matching query
-        tv_shows = get_tv_shows_search_all(query, True)
-        for tv_show in tv_shows:
-            results.append(tv_show)
-
-        return paginated_json('all', results, page)
-    except Exception as e:
-        return str(e)
-
-
 # Individual Media Info Route
 @app.route('/title=<title>/info', methods=['GET'])
 def get_media_info(title=None):
@@ -99,7 +75,7 @@ def get_media_info(title=None):
         check = TVShows.query.filter_by(title=title).first()
 
         if check is not None:
-            result = get_tv_show_info(title)
+            result = tv_show_info(title)
             if result is not None:
                 return jsonify({title: result.serialize()})
 
@@ -107,7 +83,7 @@ def get_media_info(title=None):
         check = Movie.query.filter_by(title=title).first()
         if check is not None:
             # Check if title is in Movie Table
-            result = get_movie_info(title)
+            result = movie_info(title)
             if result is not None:
                 return jsonify({title: result.serialize()})
 
@@ -118,28 +94,25 @@ def get_media_info(title=None):
 
 # [url]/actors
 # [url]/actors/page=[page_number]
-@app.route('/actors/page=<int:page>', methods=['GET'])
+@app.route('/actors/page=<page>', methods=['GET'])
 @app.route('/actors/page=', methods=['GET'])
 @app.route('/actors', methods=['GET'])
 def get_actors_by_page(page=1):
-    try:
-        actors = Actor.query.order_by().all()
-        max_page = int(math.ceil(actors[-1].id / app.config['POSTS_PER_PAGE']))
-        actors = list()
+    actors = Actor.query.order_by().all()
+    max_page = int(math.ceil(actors[-1].id / app.config['POSTS_PER_PAGE']))
+    actors = list()
 
-        # Create a tuple of actors in alphabetical order
-        pagination = Actor.query.order_by(Actor.full_name).paginate(page, app.config['POSTS_PER_PAGE'], error_out=False)
+    # Create a tuple of actors in alphabetical order
+    pagination = Actor.query.order_by(Actor.full_name).paginate(page, app.config['POSTS_PER_PAGE'], error_out=False)
 
-        # Create a list of Actor objects of size app.config['POST_PER_PAGE']
-        for item in pagination.items:
-            actors.append(Actor.query.filter_by(id=item.id).first())
+    # Create a list of Actor objects of size app.config['POST_PER_PAGE']
+    for item in pagination.items:
+        actors.append(Actor.query.filter_by(id=item.id).first())
 
-        json = make_response(jsonify({'actors': [actor.serialize() for actor in actors]}))
-        json.headers['current_page'] = page
-        json.headers['max_pages'] = max_page
-        return json
-    except Exception as e:
-        return str(e)
+    json = make_response(jsonify({'actors': [actor.serialize() for actor in actors]}))
+    json.headers['current_page'] = page
+    json.headers['max_pages'] = max_page
+    return json
 
 
 # [url]/actors/fn=[first_name]/page=[page_number]
@@ -1005,8 +978,32 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
         return str(e)
 
 
+# Search All Route
+# [url]/all=[query]
+@app.route('/all=<query>/page=<int:page>', methods=['GET'])
+@app.route('/all=<query>', methods=['GET'])
+@app.route('/all=', methods=['GET'])
+def get_all_results(query=None, page=1):
+    try:
+        results = list()
+
+        # Append all movies in database with matching query
+        movies = get_movies_search_all(query, True)
+        for movie in movies:
+            results.append(movie)
+
+        # Append all tv-shows in database with matching query
+        tv_shows = get_tv_shows_search_all(query, True)
+        for tv_show in tv_shows:
+            results.append(tv_show)
+
+        return paginated_json('all', results, page)
+    except Exception as e:
+        return str(e)
+
+
 # Individual Movie Info
-def get_movie_info(title):
+def movie_info(title):
     try:
         movie = Movie.query.filter_by(title=title).first()
         movie_actors = ActorMovie.query.filter_by(movie_id=movie.id).all()
@@ -1050,7 +1047,7 @@ def get_movie_info(title):
 
 
 # Individual TV Show Info
-def get_tv_show_info(title):
+def tv_show_info(title):
     try:
         tv_season_info = list()
 
