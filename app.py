@@ -695,7 +695,8 @@ def get_tv_show_info(title=None):
             # Display Every Season
             return jsonify({title: [tvi.serialize() for tvi in tv_info]})
 
-    return jsonify({'title': None})
+    return jsonify({'title': tv_info})
+
 
 # [url/tv_shows/recently_added
 @app.route('/tv_shows/recently_added/page=<page>', methods=['GET'])
@@ -724,22 +725,19 @@ def get_tv_shows_recent(page=1):
 @app.route('/tv_shows/title=<title>', methods=['GET'])
 @app.route('/tv_shows/title=', methods=['GET'])
 def get_tv_shows_by_title(title=None, search_all=False, page=1):
-    try:
-        query_title = "%{}%".format(title)
-        tv_shows = TVShows.query.filter(TVShows.title.like(query_title)).all()
+    query_title = "%{}%".format(title)
+    tv_shows = TVShows.query.filter(TVShows.title.like(query_title)).all()
 
-        # return list for search all route
-        if search_all:
-            tv_list = list()
-            for tv_show in tv_shows:
-                tv_list.append(tv_show)
-            return tv_list
+    # return list for search all route
+    if search_all:
+        tv_list = list()
+        for tv_show in tv_shows:
+            tv_list.append(tv_show)
+        return tv_list
 
-        # return json of queried tv_shows
-        else:
-            return paginated_json('tv_shows', tv_shows, page)
-    except Exception as e:
-        return str(e)
+    # return json of queried tv_shows
+    else:
+        return paginated_json('tv_shows', tv_shows, page)
 
 
 # Query TV Shows by Service Provider
@@ -748,24 +746,21 @@ def get_tv_shows_by_title(title=None, search_all=False, page=1):
 @app.route('/tv_shows/service=<service>', methods=['GET'])
 @app.route('/tv_shows/service=', methods=['GET'])
 def get_tv_shows_by_service(service=None, search_all=False, page=1):
-    try:
-        results = list()
-        tv_shows = TVShows.query.filter_by(service=service)
+    results = list()
+    tv_shows = TVShows.query.filter_by(service=service)
 
-        # return list for search all route
-        if search_all:
-            tv_list = list()
-            for tv_show in tv_shows:
-                tv_list.append(tv_show)
-            return tv_list
-
+    # return list for search all route
+    if search_all:
+        tv_list = list()
         for tv_show in tv_shows:
-            results.append(tv_show)
+            tv_list.append(tv_show)
+        return tv_list
 
-        else:
-            return paginated_json('tv_shows', results, page)
-    except Exception as e:
-        return str(e)
+    for tv_show in tv_shows:
+        results.append(tv_show)
+
+    else:
+        return paginated_json('tv_shows', results, page)
 
 
 # Query TV Shows by Genre Type
