@@ -288,14 +288,14 @@ class UnitTests(unittest.TestCase):
 
     def test_get_tv_show_info(self):
         # Should Return
-        # 'title':  None
+        # 'title':  []
 
-        test_values = [None, '', -1, 0]
+        test_values = [None, '', -1, 0, 'toy story']
 
         for i in range(len(test_values)):
             result = self.app.get('/tv_shows/title={title}/info'.format(title=test_values[i]))
             expected = result.get_json()
-            self.assertEqual(expected['title'], None)
+            self.assertEqual(expected['title'], [])
 
         # Should Return
         # 'title' is not None
@@ -304,5 +304,5 @@ class UnitTests(unittest.TestCase):
         for i in range(len(test_values)):
             result = self.app.get('/tv_shows/title={title}/info'.format(title=test_values[i]))
             expected = result.get_json()
-            assert expected[test_values[i]] is not None
+            assert len(expected[test_values[i]]) >= 1
 
