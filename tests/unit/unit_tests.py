@@ -38,6 +38,28 @@ class UnitTests(unittest.TestCase):
         # assert the response data
         self.assertEqual(result.data, b'Home Page')
 
+    def test_get_media_info(self):
+        # Should Return
+        # 'title': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/title={title}/info'.format(title=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['title'], [])
+
+        # Should be Successful
+
+        test_values = ['Game of Thrones', 'Seinfeld',
+                       'Bird Box', 'Hunger Games']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/title={title}/info'.format(title=test_values[i]))
+            expected = result.get_json()
+            assert expected[test_values[i]] is not None
+            assert len(expected[test_values[i]]) >= 1
+
     def test_get_actors_by_page(self):
         # Should Return
         # 'actors' is not None
@@ -383,5 +405,50 @@ class UnitTests(unittest.TestCase):
 
         for i in range(len(test_values)):
             result = self.app.get('/tv_shows/year={year}'.format(year=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
+
+    def test_get_tv_shows_by_actor(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/actor={actor}'.format(actor=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = ['peter dinklage', 'Julia Louis-Dreyfus']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/actor={actor}'.format(actor=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
+
+    def test_get_tv_shows_search_all(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = ['game', 'thrones', 'flash',
+                       'netflix', 'hulu', 'hbo now',
+                       'thriller', 'action', 'romance',
+                       2012, '2012', 2014, '2014', 2020,
+                       'peter dinklage', 'Julia Louis-Dreyfus'
+                       ]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/all={query}'.format(query=test_values[i]))
             expected = result.get_json()
             assert len(expected['tv_shows']) >= 1
