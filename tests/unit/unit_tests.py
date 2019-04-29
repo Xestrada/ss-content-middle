@@ -184,6 +184,14 @@ class UnitTests(unittest.TestCase):
             expected = result.get_json()
             assert expected[test_values[i]] is not None
 
+    def test_get_movies_recent(self):
+        # Should Return
+        # 'movies' is not None
+
+        result = self.app.get('/movies/recently_added')
+        expected = result.get_json()
+        assert expected['movies'] is not None
+
     def test_get_movies_by_title(self):
         # Should Return
         # 'movies': []
@@ -335,6 +343,14 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/tv_shows/title={title}/info'.format(title=test_values[i]))
             expected = result.get_json()
             assert len(expected[test_values[i]]) >= 1
+
+    def test_get_tv_shows_recent(self):
+        # Should Return
+        # 'tv_shows' is not None
+
+        result = self.app.get('/tv_shows/recently_added')
+        expected = result.get_json()
+        assert expected['tv_shows'] is not None
 
     def test_get_tv_shows_by_title(self):
         # Should Return
