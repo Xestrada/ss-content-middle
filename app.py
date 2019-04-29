@@ -404,37 +404,34 @@ def get_movies_by_service(service=None, search_all=False, page=1):
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
 def get_movies_by_genre(genre=None, search_all=False, page=1):
-    try:
-        movies = list()
+    movies = list()
 
-        # Determine Singular Genre Object
-        genre = Genre.query.filter_by(genre_type=genre).first()
+    # Determine Singular Genre Object
+    genre = Genre.query.filter_by(genre_type=genre).first()
 
-        # if Genre exists, query Movies
-        if genre is not None:
-            # Determine all Movie_ids with that Genre
-            movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
+    # if Genre exists, query Movies
+    if genre is not None:
+        # Determine all Movie_ids with that Genre
+        movie_genre_rel = MovieGenre.query.filter_by(genre_id=genre.id)
 
-            # Create a list of all Movie_ids with that Genre
-            movie_ids = list()
-            for mgr in movie_genre_rel:
-                movie_ids.append(mgr.movie_id)
+        # Create a list of all Movie_ids with that Genre
+        movie_ids = list()
+        for mgr in movie_genre_rel:
+            movie_ids.append(mgr.movie_id)
 
-            # Create a list of all the corresponding Movie objects
-            for id in movie_ids:
-                movies.append(Movie.query.filter_by(id=id).first())
+        # Create a list of all the corresponding Movie objects
+        for id in movie_ids:
+            movies.append(Movie.query.filter_by(id=id).first())
 
-        # return list for search all route
-        if search_all:
-            movie_list = list()
-            for movie in movies:
-                movie_list.append(movie)
-            return movie_list
+    # return list for search all route
+    if search_all:
+        movie_list = list()
+        for movie in movies:
+            movie_list.append(movie)
+        return movie_list
 
-        else:
-            return paginated_json('movies', movies, page)
-    except Exception as e:
-        return str(e)
+    else:
+        return paginated_json('movies', movies, page)
 
 
 # Query Movies by Year
@@ -443,26 +440,23 @@ def get_movies_by_genre(genre=None, search_all=False, page=1):
 @app.route('/movies/year=<year>', methods=['GET'])
 @app.route('/movies/year=', methods=['GET'])
 def get_movies_by_year(year=None, search_all=False, page=1):
-    try:
-        movies = list()
-        if year is not None and int(year) > 0:
-            movies = Movie.query.filter_by(year=year)
+    movies = list()
+    if year is not None and year.isdigit():
+        movies = Movie.query.filter_by(year=year)
 
-            movie_list = list()
-            for movie in movies:
-                movie_list.append(movie)
+        movie_list = list()
+        for movie in movies:
+            movie_list.append(movie)
 
-            # return list for search all route
-            if search_all:
-                return movie_list
-            else:
-                return paginated_json('movies', movie_list, page)
-
-        # return json of queried movies
+        # return list for search all route
+        if search_all:
+            return movie_list
         else:
-            return paginated_json('movies', movies, page)
-    except Exception as e:
-        return str(e)
+            return paginated_json('movies', movie_list, page)
+
+    # return json of queried movies
+    else:
+        return paginated_json('movies', movies, page)
 
 
 # [url]/movies/actor=[actor_full_name]/page=[page]
