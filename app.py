@@ -42,29 +42,26 @@ def hello_world():
 @app.route('/recently_added/page=<page>', methods=['GET'])
 @app.route('/recently_added', methods=['GET'])
 def recently_added(page=1):
-    try:
-        results = list()
-        today = date.today()
+    results = list()
+    today = date.today()
 
-        # Append all movies in database within 'RECENT_TIME' days
-        movies = Movie.query.order_by().all()
-        for movie in movies:
-            date_movie_added = movie.date_added
+    # Append all movies in database within 'RECENT_TIME' days
+    movies = Movie.query.order_by().all()
+    for movie in movies:
+        date_movie_added = movie.date_added
 
-            if date_movie_added + timedelta(app.config['RECENT_TIME']) >= today:
-                results.append(movie)
+        if date_movie_added + timedelta(days=30) >= today:
+            results.append(movie)
 
-        # Append all tv-shows in database within 'RECENT_TIME' days
-        tv_shows = TVShows.query.order_by().all()
-        for tv_show in tv_shows:
-            date_tv_show_added = tv_show.date_added
+    # Append all tv-shows in database within 'RECENT_TIME' days
+    tv_shows = TVShows.query.order_by().all()
+    for tv_show in tv_shows:
+        date_tv_show_added = tv_show.date_added
 
-            if date_tv_show_added + timedelta(app.config['RECENT_TIME']) >= today:
-                results.append(tv_show)
+        if date_tv_show_added + timedelta(days=30) >= today:
+            results.append(tv_show)
 
-        return paginated_json('recently_added', results, page)
-    except Exception as e:
-        return str(e)
+    return paginated_json('recently_added', results, page)
 
 
 # Individual Media Info Route
