@@ -233,3 +233,47 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/movies/year={year}'.format(year=test_values[i]))
             expected = result.get_json()
             assert len(expected['movies']) >= 1
+
+    def test_get_movies_by_actor(self):
+        # Should Return
+        # 'movies': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/actor={actor}'.format(actor=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['movies'], [])
+
+        # Should Return Successfully
+
+        test_values = ['tom hanks', 'sandra bullock']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/actor={actor}'.format(actor=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['movies']) >= 1
+
+    def test_get_movies_search_all(self):
+        # Should Return
+        # 'movies': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['movies'], [])
+
+        # Should Return Successfully
+
+        test_values = ['bird', 'toy', 'story',
+                       'netflix', 'hulu',
+                       'thriller', 'horror',
+                       2012, '2012', 2017, '2017'
+                       ]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['movies']) >= 1
