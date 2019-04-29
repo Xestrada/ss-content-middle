@@ -38,6 +38,14 @@ class UnitTests(unittest.TestCase):
         # assert the response data
         self.assertEqual(result.data, b'Home Page')
 
+    def test_recently_added(self):
+        # Should Return
+        # 'recently_added' is not None
+
+        result = self.app.get('/recently_added')
+        expected = result.get_json()
+        assert expected['recently_added'] is not None
+
     def test_get_media_info(self):
         # Should Return
         # 'title': []
