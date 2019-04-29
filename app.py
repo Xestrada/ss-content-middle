@@ -39,7 +39,7 @@ def hello_world():
 
 
 # [url]/recently_added
-@app.route('/recently_added/page=<page>', methods=['GET'])
+@app.route('/recently_added/page=<int:page>', methods=['GET'])
 @app.route('/recently_added', methods=['GET'])
 def recently_added(page=1):
     results = list()
@@ -89,7 +89,7 @@ def get_media_info(title=None):
 
 # [url]/actors
 # [url]/actors/page=[page_number]
-@app.route('/actors/page=<page>', methods=['GET'])
+@app.route('/actors/page=<int:page>', methods=['GET'])
 @app.route('/actors/page=', methods=['GET'])
 @app.route('/actors', methods=['GET'])
 def get_actors_by_page(page=1):
@@ -112,7 +112,7 @@ def get_actors_by_page(page=1):
 
 # [url]/actors/fn=[first_name]/page=[page_number]
 # [url]/actors/fn=[first_name]
-@app.route('/actors/fn=<first_name>/page=<page>', methods=['GET'])
+@app.route('/actors/fn=<first_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/fn=<first_name>', methods=['GET'])
 @app.route('/actors/fn=', methods=['GET'])
 def get_actors_by_first_name(first_name=None, search_all=False, page=1):
@@ -129,7 +129,7 @@ def get_actors_by_first_name(first_name=None, search_all=False, page=1):
 
 # [url]/actors/ln=[last_name]/page=[page_number]
 # [url]/actors/ln=[last_name]
-@app.route('/actors/ln=<last_name>/page=<page>', methods=['GET'])
+@app.route('/actors/ln=<last_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/ln=<last_name>', methods=['GET'])
 @app.route('/actors/ln=', methods=['GET'])
 def get_actors_by_last_name(last_name=None, search_all=False, page=1):
@@ -147,7 +147,7 @@ def get_actors_by_last_name(last_name=None, search_all=False, page=1):
 # also serves as the actors search all function
 # [url]/actors/full=[full_name]/page=[page_number]
 # [url]/actors/full=[full_name]
-@app.route('/actors/full=<full_name>/page=<page>', methods=['GET'])
+@app.route('/actors/full=<full_name>/page=<int:page>', methods=['GET'])
 @app.route('/actors/full=<full_name>', methods=['GET'])
 @app.route('/actors/full=', methods=['GET'])
 def get_actors_by_full_name(full_name=None, search_all=False, page=1):
@@ -164,7 +164,7 @@ def get_actors_by_full_name(full_name=None, search_all=False, page=1):
 # Return a list of tv_shows that match query in any column
 # [url]/actors/all=[query]/page=[page_number]
 # [url]/actors/all=[query]
-@app.route('/actors/all=<query>/page=<page>', methods=['GET'])
+@app.route('/actors/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/actors/all=<query>', methods=['GET'])
 @app.route('/actors/all=', methods=['GET'])
 def get_actor_search_all(query=None, search_all=False, page=1):
@@ -329,7 +329,7 @@ def get_movie_info(title=None):
 
 
 # [url/movies/recently_added
-@app.route('/movies/recently_added/page=<page>', methods=['GET'])
+@app.route('/movies/recently_added/page=<int:page>', methods=['GET'])
 @app.route('/movies/recently_added', methods=['GET'])
 def get_movies_recent(page=1):
     results = list()
@@ -347,7 +347,7 @@ def get_movies_recent(page=1):
 
 
 # [url]/movies/title=[title]
-@app.route('/movies/title=<title>/page=<page>', methods=['GET'])
+@app.route('/movies/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/movies/title=<title>', methods=['GET'])
 @app.route('/movies/title=', methods=['GET'])
 def get_movies_by_title(title=None, search_all=False, page=1):
@@ -368,7 +368,7 @@ def get_movies_by_title(title=None, search_all=False, page=1):
 
 # Query Movies by Service Provider
 # [url]/movies/service=[service_provider]
-@app.route('/movies/service=<service>/page=<page>', methods=['GET'])
+@app.route('/movies/service=<service>/page=<int:page>', methods=['GET'])
 @app.route('/movies/service=<service>', methods=['GET'])
 @app.route('/movies/service=', methods=['GET'])
 def get_movies_by_service(service=None, search_all=False, page=1):
@@ -392,7 +392,7 @@ def get_movies_by_service(service=None, search_all=False, page=1):
 
 # Query Movies by Genre Type
 # [url]/movies/genre=[genre_type]
-@app.route('/movies/genre=<genre>/page=<page>', methods=['GET'])
+@app.route('/movies/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/movies/genre=<genre>', methods=['GET'])
 @app.route('/movies/genre=', methods=['GET'])
 def get_movies_by_genre(genre=None, search_all=False, page=1):
@@ -428,7 +428,7 @@ def get_movies_by_genre(genre=None, search_all=False, page=1):
 
 # Query Movies by Year
 # [url]/movies/year=[year]
-@app.route('/movies/year=<year>/page=<page>', methods=['GET'])
+@app.route('/movies/year=<year>/page=<int:page>', methods=['GET'])
 @app.route('/movies/year=<year>', methods=['GET'])
 @app.route('/movies/year=', methods=['GET'])
 def get_movies_by_year(year=None, search_all=False, page=1):
@@ -456,7 +456,7 @@ def get_movies_by_year(year=None, search_all=False, page=1):
 
 # [url]/movies/actor=[actor_full_name]/page=[page]
 # [url]/movies/actor=[actor_full_name]
-@app.route('/movies/actor=<actor_name>/page=<page>', methods=['GET'])
+@app.route('/movies/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/movies/actor=<actor_name>', methods=['GET'])
 @app.route('/movies/actor=', methods=['GET'])
 def get_movies_by_actor(actor_name=None, page=1):
@@ -474,7 +474,7 @@ def get_movies_by_actor(actor_name=None, page=1):
 
 
 # Return a list of movies that match query in any column
-@app.route('/movies/all=<query>/page=<page>', methods=['GET'])
+@app.route('/movies/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/movies/all=<query>', methods=['GET'])
 @app.route('/movies/all=', methods=['GET'])
 def get_movies_search_all(query=None, search_all=False, page=1):
@@ -689,7 +689,7 @@ def get_tv_show_info(title=None):
 
 
 # [url/tv_shows/recently_added
-@app.route('/tv_shows/recently_added/page=<page>', methods=['GET'])
+@app.route('/tv_shows/recently_added/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/recently_added', methods=['GET'])
 def get_tv_shows_recent(page=1):
     results = list()
@@ -708,7 +708,7 @@ def get_tv_shows_recent(page=1):
 
 # [url]/tv_shows/title=[title]/page=[page]
 # [url]/tv_shows/title=[title]
-@app.route('/tv_shows/title=<title>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/title=<title>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/title=<title>', methods=['GET'])
 @app.route('/tv_shows/title=', methods=['GET'])
 def get_tv_shows_by_title(title=None, search_all=False, page=1):
@@ -729,7 +729,7 @@ def get_tv_shows_by_title(title=None, search_all=False, page=1):
 
 # Query TV Shows by Service Provider
 # [url]/tv_shows/service=[service_provider]
-@app.route('/tv_shows/service=<service>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/service=<service>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/service=<service>', methods=['GET'])
 @app.route('/tv_shows/service=', methods=['GET'])
 def get_tv_shows_by_service(service=None, search_all=False, page=1):
@@ -752,7 +752,7 @@ def get_tv_shows_by_service(service=None, search_all=False, page=1):
 
 # Query TV Shows by Genre Type
 # [url]/tv_shows/genre=[genre_type]
-@app.route('/tv_shows/genre=<genre>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/genre=<genre>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
 @app.route('/tv_shows/genre=', methods=['GET'])
 def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
@@ -790,7 +790,7 @@ def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
 
 # Query TV Shows by Years Running
 # [url]/tv_shows/year=[year]
-@app.route('/tv_shows/year=<year>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/year=<year>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/year=<year>', methods=['GET'])
 @app.route('/tv_shows/year=', methods=['GET'])
 def get_tv_shows_by_year(year=None, search_all=False, page=1):
@@ -850,7 +850,7 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
 
 # [url]/tv_shows/actor=[actor_full_name]/page=[page]
 # [url]/tv_shows/actor=[actor_full_name]
-@app.route('/tv_shows/actor=<actor_name>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/actor=<actor_name>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/actor=<actor_name>', methods=['GET'])
 @app.route('/tv_shows/actor=', methods=['GET'])
 def get_tv_shows_by_actor(actor_name=None, search_all=False, page=1):
@@ -871,7 +871,7 @@ def get_tv_shows_by_actor(actor_name=None, search_all=False, page=1):
 
 
 # Return a list of tv_shows that match query in any column
-@app.route('/tv_shows/all=<query>/page=<page>', methods=['GET'])
+@app.route('/tv_shows/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/tv_shows/all=<query>', methods=['GET'])
 @app.route('/tv_shows/all=', methods=['GET'])
 def get_tv_shows_search_all(query=None, search_all=False, page=1):
@@ -928,7 +928,7 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
 
 # Search All Route
 # [url]/all=[query]
-@app.route('/all=<query>/page=<page>', methods=['GET'])
+@app.route('/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/all=<query>', methods=['GET'])
 @app.route('/all=', methods=['GET'])
 def get_all_results(query=None, page=1):
