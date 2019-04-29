@@ -943,15 +943,16 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
 def get_all_results(query=None, page=1):
     results = list()
 
-    # Append all movies in database with matching query
-    movies = get_movies_search_all(query, True)
-    for movie in movies:
-        results.append(movie)
+    if query is not None:
+        # Append all movies in database with matching query
+        movies = get_movies_search_all(query, True)
+        for movie in movies:
+            results.append(movie)
 
-    # Append all tv-shows in database with matching query
-    tv_shows = get_tv_shows_search_all(query, True)
-    for tv_show in tv_shows:
-        results.append(tv_show)
+        # Append all tv-shows in database with matching query
+        tv_shows = get_tv_shows_search_all(query, True)
+        for tv_show in tv_shows:
+            results.append(tv_show)
 
     return paginated_json('all', results, page)
 
