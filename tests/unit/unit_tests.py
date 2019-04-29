@@ -306,3 +306,42 @@ class UnitTests(unittest.TestCase):
             expected = result.get_json()
             assert len(expected[test_values[i]]) >= 1
 
+    def test_get_tv_shows_by_title(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/title={title}'.format(title=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = ['game', 'thrones', 'flash']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/title={title}'.format(title=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
+
+    def test_get_tv_shows_by_service(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/service={service}'.format(service=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = ['netflix', 'hulu', 'hbo now']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/service={service}'.format(service=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
