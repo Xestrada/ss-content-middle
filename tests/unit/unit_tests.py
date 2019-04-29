@@ -452,3 +452,31 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/tv_shows/all={query}'.format(query=test_values[i]))
             expected = result.get_json()
             assert len(expected['tv_shows']) >= 1
+
+    def test_get_all_results(self):
+        # Should Return
+        # 'all': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['all'], [])
+
+        # Should Return
+        # 'all' is not None
+
+        test_values = ['bird', 'toy', 'story',
+                       'thriller', 'horror','action', 'romance',
+                       2012, '2012', 2014, '2014', 2017, '2017', 2020, '2020',
+                       'game', 'thrones', 'flash',
+                       'netflix', 'hulu', 'hbo now',
+                       'peter dinklage', 'Julia Louis-Dreyfus'
+                       ]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/all={query}'.format(query=test_values[i]))
+            expected = result.get_json()
+            assert expected['all'] is not None
+            assert len(expected['all']) >= 1
