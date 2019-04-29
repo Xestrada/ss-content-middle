@@ -153,3 +153,43 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/movies/title={title}/info'.format(title=test_values[i]))
             expected = result.get_json()
             assert expected[test_values[i]] is not None
+
+    def test_get_movies_by_title(self):
+        # Should Return
+        # 'movies': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/title={title}'.format(title=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['movies'], [])
+
+        # Should Return Successfully
+
+        test_values = ['bird', 'toy', 'story']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/title={title}'.format(title=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['movies']) >= 1
+
+    def test_get_movies_by_service(self):
+        # Should Return
+        # 'movies': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/service={service}'.format(service=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['movies'], [])
+
+        # Should Return Successfully
+
+        test_values = ['netflix', 'hulu']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/movies/service={service}'.format(service=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['movies']) >= 1
