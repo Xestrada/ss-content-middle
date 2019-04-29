@@ -537,11 +537,8 @@ def get_movies_search_all(query=None, search_all=False, page=1):
 # [url]/tv_shows
 @app.route('/tv_shows', methods=['GET'])
 def get_tv_shows():
-    try:
-        tv_shows = TVShows.query.all()
-        return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-    except Exception as e:
-        return str(e)
+    tv_shows = TVShows.query.all()
+    return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
 
 
 # post to tv_shows database CHANGE THE ROUTE IF NECESSARY
@@ -669,13 +666,14 @@ def post_tv_shows():
 
 # [url]/tv_shows/title=[title]/info
 @app.route('/tv_shows/title=<title>/info', methods=['GET'])
+@app.route('/tv_shows/title=/info', methods=['GET'])
 def get_tv_show_info(title=None):
-    try:
-        tv_info = list()
+    tv_info = list()
 
+    if title is not None:
         tv_show = TVShows.query.filter_by(title=title).first()
-        tv_show_id = tv_show.id
-        if tv_show_id is not None:
+        if tv_show is not None:
+            tv_show_id = tv_show.id
             # Get List of all entries
             tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
 
@@ -694,11 +692,10 @@ def get_tv_show_info(title=None):
                 entry = TVShowSeasonInfo(season_id, episodes)
                 tv_info.append(entry)
 
-        # Display Every Season
-        return jsonify({title: [tvi.serialize() for tvi in tv_info]})
-    except Exception as e:
-        return str(e)
+            # Display Every Season
+            return jsonify({title: [tvi.serialize() for tvi in tv_info]})
 
+    return jsonify({'title': None})
 
 # [url/tv_shows/recently_added
 @app.route('/tv_shows/recently_added/page=<page>', methods=['GET'])
