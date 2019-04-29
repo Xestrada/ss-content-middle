@@ -456,7 +456,10 @@ def get_movies_by_year(year=None, search_all=False, page=1):
 
     # return json of queried movies
     else:
-        return paginated_json('movies', movies, page)
+        if search_all:
+            return movies
+        else:
+            return paginated_json('movies', movies, page)
 
 
 # [url]/movies/actor=[actor_full_name]/page=[page]
@@ -465,20 +468,17 @@ def get_movies_by_year(year=None, search_all=False, page=1):
 @app.route('/movies/actor=<actor_name>', methods=['GET'])
 @app.route('/movies/actor=', methods=['GET'])
 def get_movies_by_actor(actor_name=None, page=1):
-    try:
-        movies = list()
-        actor_name = Actor.query.filter_by(full_name=actor_name).first()
-        if actor_name is not None:
-            movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
-            movie_id = list()
-            for mar in movie_actor_rel:
-                movie_id.append(mar.movie_id)
-            for id in movie_id:
-                movies.append(Movie.query.filter_by(id=id).first())
+    movies = list()
+    actor_name = Actor.query.filter_by(full_name=actor_name).first()
+    if actor_name is not None:
+        movie_actor_rel = ActorMovie.query.filter_by(actor_id=actor_name.id)
+        movie_id = list()
+        for mar in movie_actor_rel:
+            movie_id.append(mar.movie_id)
+        for id in movie_id:
+            movies.append(Movie.query.filter_by(id=id).first())
 
-        return paginated_json("movies", movies, page)
-    except Exception as e:
-        return str(e)
+    return paginated_json("movies", movies, page)
 
 
 # Return a list of movies that match query in any column
@@ -486,30 +486,31 @@ def get_movies_by_actor(actor_name=None, page=1):
 @app.route('/movies/all=<query>', methods=['GET'])
 @app.route('/movies/all=', methods=['GET'])
 def get_movies_search_all(query=None, search_all=False, page=1):
-    try:
-        movies = list()
+    movies = list()
+
+    if query is not None:
 
         # movie_title = query
         movies_title = get_movies_by_title(query, True)
-        if len(movies_title) != 0:
+        if len(movies_title) > 0:
             for movie in movies_title:
                 movies.append(movie)
 
         # movie_service = query
         movies_service = get_movies_by_service(query, True)
-        if len(movies_service) != 0:
+        if len(movies_service) > 0:
             for movie in movies_service:
                 movies.append(movie)
 
         # movie_genre = query
         movies_genre = get_movies_by_genre(query, True)
-        if len(movies_genre) != 0:
+        if len(movies_genre) > 0:
             for movie in movies_genre:
                 movies.append(movie)
 
         # movie_year = query
         movies_year = get_movies_by_year(query, True)
-        if len(movies_year) != 0:
+        if len(movies_year) > 0:
             for movie in movies_year:
                 movies.append(movie)
 
@@ -528,8 +529,8 @@ def get_movies_search_all(query=None, search_all=False, page=1):
             return movies
         else:
             return paginated_json('movies', movies, page)
-    except Exception as e:
-        return str(e)
+
+    return paginated_json('movies', movies, page)
 
 
 # Query All TV Shows in Database
