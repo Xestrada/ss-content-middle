@@ -941,131 +941,122 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
 @app.route('/all=<query>', methods=['GET'])
 @app.route('/all=', methods=['GET'])
 def get_all_results(query=None, page=1):
-    try:
-        results = list()
+    results = list()
 
-        # Append all movies in database with matching query
-        movies = get_movies_search_all(query, True)
-        for movie in movies:
-            results.append(movie)
+    # Append all movies in database with matching query
+    movies = get_movies_search_all(query, True)
+    for movie in movies:
+        results.append(movie)
 
-        # Append all tv-shows in database with matching query
-        tv_shows = get_tv_shows_search_all(query, True)
-        for tv_show in tv_shows:
-            results.append(tv_show)
+    # Append all tv-shows in database with matching query
+    tv_shows = get_tv_shows_search_all(query, True)
+    for tv_show in tv_shows:
+        results.append(tv_show)
 
-        return paginated_json('all', results, page)
-    except Exception as e:
-        return str(e)
+    return paginated_json('all', results, page)
 
 
 # Individual Movie Info
 def movie_info(title):
-    try:
-        movie = Movie.query.filter_by(title=title).first()
-        movie_actors = ActorMovie.query.filter_by(movie_id=movie.id).all()
-        movie_genres = MovieGenre.query.filter_by(movie_id=movie.id).all()
+    movie = Movie.query.filter_by(title=title).first()
+    movie_actors = ActorMovie.query.filter_by(movie_id=movie.id).all()
+    movie_genres = MovieGenre.query.filter_by(movie_id=movie.id).all()
 
-        # Get list of all stars in tv show
-        stars = list()
-        if movie_actors is None:
-            stars = None
-        else:
-            # For each actor
-            for ma in movie_actors:
-                actor = Actor.query.filter_by(id=ma.actor_id).first()
-                stars.append(actor.full_name)
+    # Get list of all stars in tv show
+    stars = list()
+    if movie_actors is None:
+        stars = None
+    else:
+        # For each actor
+        for ma in movie_actors:
+            actor = Actor.query.filter_by(id=ma.actor_id).first()
+            stars.append(actor.full_name)
 
-        # Gets list of all genres in tv show
-        genres = list()
-        if movie_genres is None:
-            genres = None
-        else:
-            # For each genre
-            for mg in movie_genres:
-                genre = Genre.query.filter_by(id=mg.genre_id).first()
-                genres.append(genre.genre_type)
+    # Gets list of all genres in tv show
+    genres = list()
+    if movie_genres is None:
+        genres = None
+    else:
+        # For each genre
+        for mg in movie_genres:
+            genre = Genre.query.filter_by(id=mg.genre_id).first()
+            genres.append(genre.genre_type)
 
-        if movie is not None:
-            movie_id = movie.id
-            title = movie.title
-            year = movie.year
-            url = movie.url
-            description = movie.description
-            image_url = movie.image_url
-            avg_rating = movie.avg_rating
+    if movie is not None:
+        movie_id = movie.id
+        title = movie.title
+        year = movie.year
+        url = movie.url
+        description = movie.description
+        image_url = movie.image_url
+        avg_rating = movie.avg_rating
 
-            movie_info = MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
-            return movie_info
+        movie_info = MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
+        return movie_info
 
-        return None
-    except Exception as e:
-        return str(e)
+    return None
 
 
 # Individual TV Show Info
 def tv_show_info(title):
-    try:
-        tv_season_info = list()
+    tv_season_info = list()
 
-        tv_show = TVShows.query.filter_by(title=title).first()
-        tv_show_id = tv_show.id
-        tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id=tv_show_id).all()
-        tv_show_genres = TVShowGenre.query.filter_by(tv_show_id=tv_show_id).all()
+    tv_show = TVShows.query.filter_by(title=title).first()
+    tv_show_id = tv_show.id
+    tv_show_actors = ActorsTVShow.query.filter_by(tv_show_id=tv_show_id).all()
+    tv_show_genres = TVShowGenre.query.filter_by(tv_show_id=tv_show_id).all()
 
-        if tv_show_id is not None:
-            # Get List of all entries
-            tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
+    if tv_show_id is not None:
+        # Get List of all entries
+        tv_show_seasons = TVShowSeasons.query.filter_by(tv_show_id=tv_show_id)
 
-            # For each season
-            for tss in tv_show_seasons:
+        # For each season
+        for tss in tv_show_seasons:
 
-                # Get all episodes in the season
-                season_id = tss.season
-                season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
+            # Get all episodes in the season
+            season_id = tss.season
+            season_episodes = TVShowEpisodes.query.filter_by(tv_show_id=tv_show_id).filter_by(season_id=season_id)
 
-                episodes = list()
-                # For each episode
-                for ep in season_episodes:
-                    episodes.append(ep)
+            episodes = list()
+            # For each episode
+            for ep in season_episodes:
+                episodes.append(ep)
 
-                entry = TVShowSeasonInfo(season_id, episodes)
-                tv_season_info.append(entry)
+            entry = TVShowSeasonInfo(season_id, episodes)
+            tv_season_info.append(entry)
 
-            # Get list of all stars in tv show
-            stars = list()
-            if tv_show_actors is None:
-                stars = None
-            else:
-                # For each actor
-                for tsa in tv_show_actors:
-                    actor = Actor.query.filter_by(id=tsa.actors_id).first()
-                    stars.append(actor.full_name)
-
-            # Gets list of all genres in tv show
-            genres = list()
-            if tv_show_genres is None:
-                genres = None
-            else:
-                # For each genre
-                for tsg in tv_show_genres:
-                    genre = Genre.query.filter_by(id=tsg.genre_id).first()
-                    genres.append(genre.genre_type)
-
-            # Convert to TV Show Info
-            title = tv_show.title
-            year = tv_show.year
-            description = tv_show.description
-            image_url = tv_show.image_url
-            avg_rating = tv_show.avg_rating
-
-            tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url,
-                                      avg_rating)
-            return tv_show_info
+        # Get list of all stars in tv show
+        stars = list()
+        if tv_show_actors is None:
+            stars = None
         else:
-            return None
-    except Exception as e:
-        return str(e)
+            # For each actor
+            for tsa in tv_show_actors:
+                actor = Actor.query.filter_by(id=tsa.actors_id).first()
+                stars.append(actor.full_name)
+
+        # Gets list of all genres in tv show
+        genres = list()
+        if tv_show_genres is None:
+            genres = None
+        else:
+            # For each genre
+            for tsg in tv_show_genres:
+                genre = Genre.query.filter_by(id=tsg.genre_id).first()
+                genres.append(genre.genre_type)
+
+        # Convert to TV Show Info
+        title = tv_show.title
+        year = tv_show.year
+        description = tv_show.description
+        image_url = tv_show.image_url
+        avg_rating = tv_show.avg_rating
+
+        tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url,
+                                  avg_rating)
+        return tv_show_info
+    else:
+        return None
 
 
 # Pseudo Pagination
