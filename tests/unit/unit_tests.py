@@ -345,3 +345,43 @@ class UnitTests(unittest.TestCase):
             result = self.app.get('/tv_shows/service={service}'.format(service=test_values[i]))
             expected = result.get_json()
             assert len(expected['tv_shows']) >= 1
+
+    def test_get_tv_shows_by_genre(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/genre={genre}'.format(genre=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = ['thriller', 'action', 'romance']
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/genre={genre}'.format(genre=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
+
+    def test_get_tv_shows_by_year(self):
+        # Should Return
+        # 'tv_shows': []
+
+        test_values = [None, '', -1, 0]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/year={year}'.format(year=test_values[i]))
+            expected = result.get_json()
+            self.assertEqual(expected['tv_shows'], [])
+
+        # Should Return Successfully
+
+        test_values = [2012, '2012', 2014, '2014', 2020]
+
+        for i in range(len(test_values)):
+            result = self.app.get('/tv_shows/year={year}'.format(year=test_values[i]))
+            expected = result.get_json()
+            assert len(expected['tv_shows']) >= 1
