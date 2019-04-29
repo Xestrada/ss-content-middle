@@ -359,22 +359,19 @@ def get_movies_recent(page=1):
 @app.route('/movies/title=<title>', methods=['GET'])
 @app.route('/movies/title=', methods=['GET'])
 def get_movies_by_title(title=None, search_all=False, page=1):
-    try:
-        query_title = "%{}%".format(title)
-        movies = Movie.query.filter(Movie.title.like(query_title)).all()
+    query_title = "%{}%".format(title)
+    movies = Movie.query.filter(Movie.title.like(query_title)).all()
 
-        # return list for search all route
-        if search_all:
-            movie_list = list()
-            for movie in movies:
-                movie_list.append(movie)
-            return movies
+    # return list for search all route
+    if search_all:
+        movie_list = list()
+        for movie in movies:
+            movie_list.append(movie)
+        return movies
 
-        # return json of queried movies
-        else:
-            return paginated_json('movies', movies, page)
-    except Exception as e:
-        return str(e)
+    # return json of queried movies
+    else:
+        return paginated_json('movies', movies, page)
 
 
 # Query Movies by Service Provider
@@ -383,25 +380,22 @@ def get_movies_by_title(title=None, search_all=False, page=1):
 @app.route('/movies/service=<service>', methods=['GET'])
 @app.route('/movies/service=', methods=['GET'])
 def get_movies_by_service(service=None, search_all=False, page=1):
-    try:
-        results = list()
-        movies = Movie.query.filter_by(service=service)
+    results = list()
+    movies = Movie.query.filter_by(service=service)
 
-        # return list for search all route
-        if search_all:
-            movie_list = list()
-            for movie in movies:
-                movie_list.append(movie)
-            return movie_list
-
+    # return list for search all route
+    if search_all:
+        movie_list = list()
         for movie in movies:
-            results.append(movie)
+            movie_list.append(movie)
+        return movie_list
 
-        # return json of queried movies
-        else:
-            return paginated_json('movies', results, page)
-    except Exception as e:
-        return str(e)
+    for movie in movies:
+        results.append(movie)
+
+    # return json of queried movies
+    else:
+        return paginated_json('movies', results, page)
 
 
 # Query Movies by Genre Type
