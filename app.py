@@ -769,9 +769,9 @@ def get_tv_shows_by_service(service=None, search_all=False, page=1):
 @app.route('/tv_shows/genre=<genre>', methods=['GET'])
 @app.route('/tv_shows/genre=', methods=['GET'])
 def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
-    try:
-        tv_shows = list()
+    tv_shows = list()
 
+    if genre is not None:
         # Determine Singular Genre Object
         genre = Genre.query.filter_by(genre_type=genre).first()
 
@@ -797,10 +797,8 @@ def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
             return tv_list
 
         # return json of queried tv_shows
-        else:
-            return paginated_json('tv_shows', tv_shows, page)
-    except Exception as e:
-        return str(e)
+
+    return paginated_json('tv_shows', tv_shows, page)
 
 
 # Query TV Shows by Years Running
@@ -809,45 +807,44 @@ def get_tv_shows_by_genre(genre=None, search_all=False, page=1):
 @app.route('/tv_shows/year=<year>', methods=['GET'])
 @app.route('/tv_shows/year=', methods=['GET'])
 def get_tv_shows_by_year(year=None, search_all=False, page=1):
-    try:
-        tv_shows = list()
+    tv_shows = list()
 
-        if year is not None and int(year) > 0:
-            queried_year = year
+    if year is not None and year.isdigit():
+        queried_year = year
 
-            # Get list of all TVShows
-            all_tv_shows = TVShows.query.all()
+        # Get list of all TVShows
+        all_tv_shows = TVShows.query.all()
 
-            for tv_show in all_tv_shows:
-                tv_show_year = tv_show.year
-                years_running = list()
+        for tv_show in all_tv_shows:
+            tv_show_year = tv_show.year
+            years_running = list()
 
-                # Ongoing Show
-                if tv_show_year[-1] == '-':
-                    y = int(tv_show_year[:-1])
-                    current_year = date.today().year
-                    while y <= current_year:
-                        years_running.append(str(y))
-                        y += 1
+            # Show Ran for One Year
+            if len(tv_show_year) == 4:
+                if tv_show_year == queried_year:
+                    years_running.append(tv_show_year)
 
-                # Show Ran for Multiple Years
-                elif tv_show_year[4] == '-':
-                    y = int(tv_show_year[:4])
-                    end_year = int(tv_show_year[5:])
-                    while y <= end_year:
-                        years_running.append(str(y))
-                        y += 1
+            # Ongoing Show
+            elif tv_show_year[-1] == '-':
+                y = int(tv_show_year[:-1])
+                current_year = date.today().year
+                while y <= current_year:
+                    years_running.append(str(y))
+                    y += 1
 
-                # Show Ran for One Year
-                else:
-                    if int(tv_show_year) == queried_year:
-                        years_running.append(tv_show_year)
+            # Show Ran for Multiple Years
+            elif tv_show_year[4] == '-':
+                y = int(tv_show_year[:4])
+                end_year = int(tv_show_year[5:])
+                while y <= end_year:
+                    years_running.append(str(y))
+                    y += 1
 
-                # Add TV Show to List if it was running during the queried year
-                for temp in years_running:
-                    if temp == queried_year:
-                        tv_shows.append(tv_show)
-                        break
+            # Add TV Show to List if it was running during the queried year
+            for temp in years_running:
+                if temp == queried_year:
+                    tv_shows.append(tv_show)
+                    break
 
         # return list for search all route
         if search_all:
@@ -856,11 +853,8 @@ def get_tv_shows_by_year(year=None, search_all=False, page=1):
                 tv_list.append(tv_show)
             return tv_list
 
-        # return json of queried tv_shows
-        else:
-            return paginated_json('tv_shows', tv_shows, page)
-    except Exception as e:
-        return str(e)
+    # return json of queried tv_shows
+    return paginated_json('tv_shows', tv_shows, page)
 
 
 # [url]/tv_shows/actor=[actor_full_name]/page=[page]
