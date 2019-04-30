@@ -191,6 +191,7 @@ def get_actor_search_all(query=None, page=1):
 
         return paginated_json('actors', actors, page)
 
+    return jsonify({'actors': actors})
 
 # Query All Movies in Database
 # [url]/movies
