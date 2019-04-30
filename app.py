@@ -3,7 +3,7 @@ import os
 from datetime import date, timedelta
 
 import pymysql
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, jsonify, make_response
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
@@ -184,13 +184,6 @@ def get_actor_search_all(query=None, search_all=False, page=1):
         if len(actors_by_full_name) != 0:
             for actor in actors_by_full_name:
                 actors.append(actor)
-
-        i = 0
-        while i < len(actors):
-            if isinstance(actors[i], str):
-                actors.remove(actors[i])
-                i -= 1
-            i += 1
 
         # Ensure no duplicates and sorted
         actors = list(set(actors))
@@ -399,13 +392,6 @@ def get_movies_search_all(query=None, search_all=False, page=1):
         if len(movies_year) > 0:
             for movie in movies_year:
                 movies.append(movie)
-
-        i = 0
-        while i < len(movies):
-            if isinstance(movies[i], str):
-                movies.remove(movies[i])
-                i -= 1
-            i += 1
 
         # Ensure no duplicates and sorted
         movies = list(set(movies))
@@ -680,13 +666,6 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
             for tv_show in tv_shows_actors:
                 tv_shows.append(tv_show)
 
-        i = 0
-        while i < len(tv_shows):
-            if isinstance(tv_shows[i], str):
-                tv_shows.remove(tv_shows[i])
-                i -= 1
-            i += 1
-
         # Ensure no duplicates and sorted
         tv_shows = list(set(tv_shows))
         tv_shows = sorted(tv_shows, key=lambda tv_show: tv_show.id)
@@ -727,7 +706,7 @@ def movie_info(title):
 
     # Get list of all stars in tv show
     stars = list()
-    if movie_actors is None:
+    if len(movie_actors) <= 0:
         stars = None
     else:
         # For each actor
@@ -737,13 +716,11 @@ def movie_info(title):
 
     # Gets list of all genres in tv show
     genres = list()
-    if movie_genres is None:
-        genres = None
-    else:
-        # For each genre
-        for mg in movie_genres:
-            genre = Genre.query.filter_by(id=mg.genre_id).first()
-            genres.append(genre.genre_type)
+
+    # For each genre
+    for mg in movie_genres:
+        genre = Genre.query.filter_by(id=mg.genre_id).first()
+        genres.append(genre.genre_type)
 
     if movie is not None:
         movie_id = movie.id
@@ -754,10 +731,7 @@ def movie_info(title):
         image_url = movie.image_url
         avg_rating = movie.avg_rating
 
-        movie_info = MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
-        return movie_info
-
-    return None
+        return MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
 
 
 # Individual TV Show Info
@@ -790,7 +764,7 @@ def tv_show_info(title):
 
         # Get list of all stars in tv show
         stars = list()
-        if tv_show_actors is None:
+        if len(tv_show_actors) <= 0:
             stars = None
         else:
             # For each actor
@@ -800,13 +774,11 @@ def tv_show_info(title):
 
         # Gets list of all genres in tv show
         genres = list()
-        if tv_show_genres is None:
-            genres = None
-        else:
-            # For each genre
-            for tsg in tv_show_genres:
-                genre = Genre.query.filter_by(id=tsg.genre_id).first()
-                genres.append(genre.genre_type)
+
+        # For each genre
+        for tsg in tv_show_genres:
+            genre = Genre.query.filter_by(id=tsg.genre_id).first()
+            genres.append(genre.genre_type)
 
         # Convert to TV Show Info
         title = tv_show.title
@@ -815,11 +787,7 @@ def tv_show_info(title):
         image_url = tv_show.image_url
         avg_rating = tv_show.avg_rating
 
-        tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url,
-                                  avg_rating)
-        return tv_show_info
-    else:
-        return None
+        return TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url, avg_rating)
 
 
 # Pseudo Pagination
