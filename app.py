@@ -167,7 +167,7 @@ def get_actors_by_full_name(full_name=None, search_all=False, page=1):
 @app.route('/actors/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/actors/all=<query>', methods=['GET'])
 @app.route('/actors/all=', methods=['GET'])
-def get_actor_search_all(query=None, search_all=False, page=1):
+def get_actor_search_all(query=None, page=1):
     actors = list()
     if query is not None:
         actors_by_first_name = get_actors_by_first_name(query, True)
@@ -189,9 +189,6 @@ def get_actor_search_all(query=None, search_all=False, page=1):
         actors = list(set(actors))
         actors = sorted(actors, key=lambda actor: actor.id)
 
-    if search_all:
-        return actors
-    else:
         return paginated_json('actors', actors, page)
 
 
