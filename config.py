@@ -39,4 +39,3 @@ class TestingConfig(Config):
 
     # Disable CSRF tokens in the Forms (only valid for testing purposes!)
     WTF_CSRF_ENABLED = False
-

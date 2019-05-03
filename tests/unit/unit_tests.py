@@ -59,8 +59,8 @@ class UnitTests(unittest.TestCase):
 
         # Should be Successful
 
-        test_values = ['Game of Thrones', 'Seinfeld',
-                       'Bird Box', 'Hunger Games']
+        test_values = ['Game of Thrones', 'Seinfeld', 'The Punisher',
+                       'Bird Box', 'Hunger Games', 'The Greatest Showman']
 
         for i in range(len(test_values)):
             result = self.app.get('/title={title}/info'.format(title=test_values[i]))
@@ -178,7 +178,7 @@ class UnitTests(unittest.TestCase):
         # Should Return
         # 'title' is not None
 
-        test_values = ['Bird Box', 'Toy Story']
+        test_values = ['Bird Box', 'Toy Story', 'The Greatest Showman']
         for i in range(len(test_values)):
             result = self.app.get('/movies/title={title}/info'.format(title=test_values[i]))
             expected = result.get_json()
@@ -465,7 +465,7 @@ class UnitTests(unittest.TestCase):
 
         # Should Return Successfully
 
-        test_values = ['game', 'thrones', 'flash',
+        test_values = ['game', 'thrones', 'flash', 'the punisher',
                        'netflix', 'hulu', 'hbo now',
                        'thriller', 'action', 'romance',
                        2012, '2012', 2014, '2014', 2020,
@@ -492,7 +492,7 @@ class UnitTests(unittest.TestCase):
         # 'all' is not None
 
         test_values = ['bird', 'toy', 'story',
-                       'thriller', 'horror','action', 'romance',
+                       'thriller', 'horror', 'action', 'romance',
                        2012, '2012', 2014, '2014', 2017, '2017', 2020, '2020',
                        'game', 'thrones', 'flash',
                        'netflix', 'hulu', 'hbo now',

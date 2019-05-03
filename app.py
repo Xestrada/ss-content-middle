@@ -3,7 +3,7 @@ import os
 from datetime import date, timedelta
 
 import pymysql
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, jsonify, make_response
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
@@ -167,7 +167,7 @@ def get_actors_by_full_name(full_name=None, search_all=False, page=1):
 @app.route('/actors/all=<query>/page=<int:page>', methods=['GET'])
 @app.route('/actors/all=<query>', methods=['GET'])
 @app.route('/actors/all=', methods=['GET'])
-def get_actor_search_all(query=None, search_all=False, page=1):
+def get_actor_search_all(query=None, page=1):
     actors = list()
     if query is not None:
         actors_by_first_name = get_actors_by_first_name(query, True)
@@ -185,21 +185,13 @@ def get_actor_search_all(query=None, search_all=False, page=1):
             for actor in actors_by_full_name:
                 actors.append(actor)
 
-        i = 0
-        while i < len(actors):
-            if isinstance(actors[i], str):
-                actors.remove(actors[i])
-                i -= 1
-            i += 1
-
         # Ensure no duplicates and sorted
         actors = list(set(actors))
         actors = sorted(actors, key=lambda actor: actor.id)
 
-    if search_all:
-        return actors
-    else:
         return paginated_json('actors', actors, page)
+
+    return jsonify({'actors': actors})
 
 
 # Query All Movies in Database
@@ -208,112 +200,6 @@ def get_actor_search_all(query=None, search_all=False, page=1):
 def get_movies():
     movies = Movie.query.all()
     return jsonify({'movies': [movie.serialize() for movie in movies]})
-
-
-# post to movies database CHANGE THE ROUTE IF NECESSARY
-@app.route('/post_movie', methods=['POST'])
-def post_movie():
-    data = request.get_json()
-    title = str(data['title'])
-    year = str(data['year'])
-    service = str(data['service'])
-    tag = str(data['tag'])
-    url = str(data['url'])
-    date_added = str(date.today())
-    image_url = str(data['image_url'])
-    genre_type = str(data['genre_type'])
-    description = str(data['description'])
-
-    success_check = True
-    title_check = True
-    year_check = True
-    service_check = True
-    tag_check = True
-    url_check = True
-    image_url_check = True
-    genre_type_check = True
-    description_check = True
-
-    # parse genre_type
-    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
-    genre_ids = list()
-
-    for genre in genre_str_list:
-        if Genre.query.filter_by(genre_type=genre).scalar() is None:
-            success_check = False
-            genre_type_check = False
-
-    if title is "" or Movie.query.filter_by(title=title).scalar() is not None:
-        success_check = False
-        title_check = False
-    if len(year) is not 4 or year.isdigit() is False:
-        success_check = False
-        year_check = False
-    if service is "":
-        success_check = False
-        service_check = False
-    if tag is "":
-        success_check = False
-        tag_check = False
-    if url is "" or Movie.query.filter_by(url=url).scalar() is not None:
-        success_check = False
-        url_check = False
-    if image_url is "" or Movie.query.filter_by(image_url=image_url).scalar() is not None:
-        success_check = False
-        image_url_check = False
-    if genre_type is "":
-        success_check = False
-        genre_type_check = False
-    if description is "":
-        success_check = False
-        description_check = False
-    if success_check is False:
-        return jsonify({'success': success_check,
-                        'valid_title': title_check,
-                        'valid_year': year_check,
-                        'valid_service': service_check,
-                        'valid_tag': tag_check,
-                        'valid_url': url_check,
-                        'valid image_url': image_url_check,
-                        'valid_genre_type': genre_type_check,
-                        'valid_description': description_check, })
-
-    # get list of all genres_ids
-    for genre in genre_str_list:
-        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
-
-    try:
-        movie = Movie(
-            title=title,
-            year=year,
-            service=service,
-            tag=tag,
-            url=url,
-            date_added=date_added,
-            image_url=image_url,
-            description=description
-        )
-        db.session.add(movie)
-        movie_id = Movie.query.filter_by(title=title).first().id
-
-        for genre_id in genre_ids:
-            movie_genre = MovieGenre(
-                movie_id=movie_id,
-                genre_id=genre_id
-            )
-            db.session.add(movie_genre)
-        db.session.commit()
-        return jsonify({'success': success_check,
-                        'valid_title': title_check,
-                        'valid_year': year_check,
-                        'valid_service': service_check,
-                        'valid_tag': tag_check,
-                        'valid_url': url_check,
-                        'valid image_url': image_url_check,
-                        'valid_genre_type': genre_type_check,
-                        'valid_description': description_check, })
-    except Exception as e:
-        return str(e)
 
 
 # [url]/movies/title=[title]/info
@@ -506,13 +392,6 @@ def get_movies_search_all(query=None, search_all=False, page=1):
             for movie in movies_year:
                 movies.append(movie)
 
-        i = 0
-        while i < len(movies):
-            if isinstance(movies[i], str):
-                movies.remove(movies[i])
-                i -= 1
-            i += 1
-
         # Ensure no duplicates and sorted
         movies = list(set(movies))
         movies = sorted(movies, key=lambda movie: movie.id)
@@ -529,129 +408,6 @@ def get_movies_search_all(query=None, search_all=False, page=1):
 def get_tv_shows():
     tv_shows = TVShows.query.all()
     return jsonify({'tv_shows': [tv_show.serialize() for tv_show in tv_shows]})
-
-
-# post to tv_shows database CHANGE THE ROUTE IF NECESSARY
-@app.route('/post_tv_show', methods=['POST'])
-def post_tv_shows():
-    data = request.get_json()
-    title = str(data['title'])
-    year = str(data['year'])
-    service = str(data['service'])
-    tag = str(data['tag'])
-    url = str(data['url'])
-    num_episodes = int(data['num_episodes'])
-    num_seasons = int(data['num_seasons'])
-    date_added = str(date.today())
-    image_url = str(data['image_url'])
-    genre_type = str(data['genre_type'])
-    description = str(data['description'])
-
-    success_check = True
-    title_check = True
-    year_check = True
-    service_check = True
-    tag_check = True
-    url_check = True
-    num_episodes_check = True
-    num_seasons_check = True
-    image_url_check = True
-    genre_type_check = True
-    description_check = True
-
-    # parse genre_type
-    genre_str_list = [genre.strip() for genre in genre_type.split(',')]
-    genre_ids = list()
-
-    for genre in genre_str_list:
-        if Genre.query.filter_by(genre_type=genre).scalar() is None:
-            success_check = False
-            genre_type_check = False
-
-    if title is "" or TVShows.query.filter_by(title=title).scalar() is not None:
-        success_check = False
-        title_check = False
-    if len(year) is not 4 or not isinstance(year, int):
-        success_check = False
-        year_check = False
-    if service is "":
-        success_check = False
-        service_check = False
-    if tag is "":
-        success_check = False
-        tag_check = False
-    if url is "" or TVShows.query.filter_by(url=url).scalar() is not None:
-        success_check = False
-        url_check = False
-    if num_episodes > 0:
-        success_check = False
-        num_episodes_check = False
-    if num_seasons > 0:
-        success_check = False
-        num_seasons_check = False
-    if image_url is "" or TVShows.query.filter_by(image_url=image_url).scalar() is not None:
-        success_check = False
-        image_url_check = False
-    if genre_type is "":
-        success_check = False
-        genre_type_check = False
-    if description is "":
-        success_check = False
-        description_check = False
-    if success_check is "":
-        return jsonify({'success': success_check,
-                        'valid_title': title_check,
-                        'valid_year': year_check,
-                        'valid_service': service_check,
-                        'valid_tag': tag_check,
-                        'valid_url': url_check,
-                        'valid_num_episodes': num_episodes_check,
-                        'valid_num_seasons': num_seasons_check,
-                        'valid image_url': image_url_check,
-                        'valid_genre_type': genre_type_check,
-                        'valid_description': description_check, })
-
-    # get list of all genres_ids
-    for genre in genre_str_list:
-        genre_ids.append(Genre.query.filter_by(genre_type=genre).first().id)
-
-    try:
-        tv_show = TVShows(
-            title=title,
-            year=year,
-            service=service,
-            tag=tag,
-            url=url,
-            num_episodes=num_episodes,
-            num_seasons=num_seasons,
-            date_added=date_added,
-            image_url=image_url,
-            description=description
-        )
-        db.session.add(tv_show)
-
-        tv_show_id = TVShows.query.filter_by(title=title).first().id
-
-        for genre_id in genre_ids:
-            tv_show_genre = TVShowGenre(
-                tv_show_id=tv_show_id,
-                genre_id=genre_id
-            )
-            db.session.add(tv_show_genre)
-        db.session.commit()
-        return jsonify({'success': success_check,
-                        'valid_title': title_check,
-                        'valid_year': year_check,
-                        'valid_service': service_check,
-                        'valid_tag': tag_check,
-                        'valid_url': url_check,
-                        'valid_num_episodes': num_episodes_check,
-                        'valid_num_seasons': num_seasons_check,
-                        'valid image_url': image_url_check,
-                        'valid_genre_type': genre_type_check,
-                        'valid_description': description_check, })
-    except Exception as e:
-        return str(e)
 
 
 # [url]/tv_shows/title=[title]/info
@@ -909,13 +665,6 @@ def get_tv_shows_search_all(query=None, search_all=False, page=1):
             for tv_show in tv_shows_actors:
                 tv_shows.append(tv_show)
 
-        i = 0
-        while i < len(tv_shows):
-            if isinstance(tv_shows[i], str):
-                tv_shows.remove(tv_shows[i])
-                i -= 1
-            i += 1
-
         # Ensure no duplicates and sorted
         tv_shows = list(set(tv_shows))
         tv_shows = sorted(tv_shows, key=lambda tv_show: tv_show.id)
@@ -956,7 +705,7 @@ def movie_info(title):
 
     # Get list of all stars in tv show
     stars = list()
-    if movie_actors is None:
+    if len(movie_actors) <= 0:
         stars = None
     else:
         # For each actor
@@ -966,13 +715,11 @@ def movie_info(title):
 
     # Gets list of all genres in tv show
     genres = list()
-    if movie_genres is None:
-        genres = None
-    else:
-        # For each genre
-        for mg in movie_genres:
-            genre = Genre.query.filter_by(id=mg.genre_id).first()
-            genres.append(genre.genre_type)
+
+    # For each genre
+    for mg in movie_genres:
+        genre = Genre.query.filter_by(id=mg.genre_id).first()
+        genres.append(genre.genre_type)
 
     if movie is not None:
         movie_id = movie.id
@@ -983,10 +730,7 @@ def movie_info(title):
         image_url = movie.image_url
         avg_rating = movie.avg_rating
 
-        movie_info = MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
-        return movie_info
-
-    return None
+        return MovieInfo(movie_id, title, year, url, description, stars, genres, image_url, avg_rating)
 
 
 # Individual TV Show Info
@@ -1019,7 +763,7 @@ def tv_show_info(title):
 
         # Get list of all stars in tv show
         stars = list()
-        if tv_show_actors is None:
+        if len(tv_show_actors) <= 0:
             stars = None
         else:
             # For each actor
@@ -1029,13 +773,11 @@ def tv_show_info(title):
 
         # Gets list of all genres in tv show
         genres = list()
-        if tv_show_genres is None:
-            genres = None
-        else:
-            # For each genre
-            for tsg in tv_show_genres:
-                genre = Genre.query.filter_by(id=tsg.genre_id).first()
-                genres.append(genre.genre_type)
+
+        # For each genre
+        for tsg in tv_show_genres:
+            genre = Genre.query.filter_by(id=tsg.genre_id).first()
+            genres.append(genre.genre_type)
 
         # Convert to TV Show Info
         title = tv_show.title
@@ -1044,11 +786,7 @@ def tv_show_info(title):
         image_url = tv_show.image_url
         avg_rating = tv_show.avg_rating
 
-        tv_show_info = TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url,
-                                  avg_rating)
-        return tv_show_info
-    else:
-        return None
+        return TVShowInfo(tv_show_id, title, year, description, stars, genres, tv_season_info, image_url, avg_rating)
 
 
 # Pseudo Pagination
