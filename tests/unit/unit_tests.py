@@ -492,7 +492,7 @@ class UnitTests(unittest.TestCase):
         # 'all' is not None
 
         test_values = ['bird', 'toy', 'story',
-                       'thriller', 'horror','action', 'romance',
+                       'thriller', 'horror', 'action', 'romance',
                        2012, '2012', 2014, '2014', 2017, '2017', 2020, '2020',
                        'game', 'thrones', 'flash',
                        'netflix', 'hulu', 'hbo now',
